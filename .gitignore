@@ -1,0 +1,5 @@
+/res
+.DS_Store
+.luarc.json
+.nova
+.vscode

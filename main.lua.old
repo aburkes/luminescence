@@ -1,0 +1,258 @@
+if arg[#arg] == "vsc_debug" then require("lldebugger").start() end --VS Code's debugger
+if type(Object) == "nil" then Object = require "code/libs/classic/classic" end
+
+local sti = require "code/libs/Simple-Tiled-Implementation/sti"
+
+
+
+
+
+mover = {
+	movements = {
+		-- Table with two three keys: the entity plus the x and y destinations.
+	},
+	update = function(self, dt)
+		local speed = 250
+		for k,v in pairs(self.movements) do
+			if v.x > v.entity.x then -- if we are moving right
+				v.entity.x = v.entity.x + speed * dt
+				if v.entity.x >= v.x then  -- if we have reached or passed the x position
+					v.entity.x = v.x
+					v.entity.y = v.y
+					if k == "user" then
+						self.movements.user = nil
+					else
+						table.remove(self.movements, k) -- remove the movement item in mover
+					end
+				end
+			end
+			if v.x < v.entity.x then -- if we are moving left
+				v.entity.x = v.entity.x - speed * dt
+				if v.entity.x <= v.x then  -- if we have reached or passed the x position
+					v.entity.x = v.x
+					v.entity.y = v.y
+					if k == "user" then
+						self.movements.user = nil
+					else
+						table.remove(self.movements, k) -- remove the movement item in mover
+					end
+				end
+			end
+			for k,v in pairs(self.movements) do
+				if v.y > v.entity.y then -- if we are moving up
+					v.entity.y = v.entity.y + speed * dt
+					if v.entity.y >= v.y then  -- if we have reached or passed the y position
+						v.entity.x = v.x
+						v.entity.y = v.y
+							if k == "user" then
+							self.movements.user = nil
+						else
+							table.remove(self.movements, k) -- remove the movement item in mover
+						end
+					end
+				end
+				if v.y < v.entity.y then -- if we are moving left
+					v.entity.y = v.entity.y - speed * dt
+					if v.entity.y <= v.y then  -- if we have reached or passed the y position
+						v.entity.x = v.x
+						v.entity.y = v.y
+							if k == "user" then
+							self.movements.user = nil
+						else
+							table.remove(self.movements, k) -- remove the movement item in mover
+						end
+					end
+				end
+			end
+			if v.y == v.entity.y and v.x == v.entity.x and not (k == "user") then
+				-- remove movement if already at destination.
+				table.remove(self.movements, k)
+			elseif v.y == v.entity.y and v.x == v.entity.x and k == "user" then
+				self.movements.user = nil
+			end
+		end
+	end,
+	move = function(self, entity, tilex, tiley)
+		if self.ready == true then
+			
+			local x, y = map:convertTileToPixel(tilex, tiley)
+			table.insert(self.movements, {entity = entity, x = x, y = y})
+			print("added to movement table")
+		end
+	end,
+	usermove = function(self, entity, tilex, tiley)
+		if self.ready == true and self.movements.user == nil then
+			if tilex < 0 then tilex = 0 end
+			if tiley < 0 then tiley = 0 end
+			if tiley > map.height - 1 then tiley = map.height - 1 end
+			if tilex > map.width + 1 then tilex = map.width + 1 end
+			print(entity.name .. " is moving to " .. tilex .. ", " .. tiley)
+			local x, y = map:convertTileToPixel(tilex, tiley)
+			self.movements.user = {entity = entity, x = x, y = y}
+			print("User movement added!")
+		end
+	end,
+	ready = true,
+	cursor = {
+		moveLeft = function(self, entity)
+			local x, y = map:convertPixelToTile(entity.x, entity.y)
+			mover:usermove(entity, x-1, y)
+		end,
+		moveRight = function(self, entity)
+			local x, y = map:convertPixelToTile(entity.x, entity.y)
+			mover:usermove(entity, x+1, y)
+		end,
+		moveUp = function(self, entity)
+			local x, y = map:convertPixelToTile(entity.x, entity.y)
+			mover:usermove(entity, x, y-1)
+		end,
+		moveDown = function(self, entity)
+			local x, y = map:convertPixelToTile(entity.x, entity.y)
+			mover:usermove(entity, x, y+1)
+		end
+	}
+}
+
+
+function findbyname(table, value, key)
+	key = key or "name"
+	for k, v in pairs(table) do
+		if v[key] == value then
+			return v
+		end
+	end
+end
+
+Move = Object:extend()
+Move.new = function(self, entity, destination, direction, speed)
+	self.entity = entity
+	self.destination = destination
+	self.direction = direction
+	self.speed = speed or 4
+end
+
+
+
+
+function love.load()
+	map = sti("res/map/outside-test-map.lua")
+	local objTable = map.layers["Object Layer 1"].objects
+	local layer = map:convertToCustomLayer("Object Layer 1")
+	local moves = {
+		inputLock = false,
+		list = {}
+	}
+
+	local function alignTile(x, y)
+		-- There is a weird bug causing Map:convertPixelToTile to return a single number rather than a table, so we are reimplementing it here. Fun.
+		local aligned = {
+			x = math.floor(x / map.tilewidth + 0.5),
+			y = math.floor(y / map.tileheight + 0.5)
+		}
+		-- There's an even weirder bug with Map:convertTileToPixel! What the heck??? Oh well, we can make a nicer one that returns labled x and y values.
+		return {
+			x = aligned.x * map.tilewidth,
+			y = aligned.y * map.tileheight
+		}
+	end
+
+	layer.entities = {}
+	for k,v in ipairs(objTable) do
+		local sprite = love.graphics.newImage(v.properties.image)
+		local newpos = alignTile(v.x, v.y)
+		local tilepos = {
+			x = newpos.x / map.tilewidth,
+			y = newpos.y / map.tileheight
+		}	
+		layer.entities[k] = {
+			name = v.name,
+			sprite = sprite,
+			x = newpos.x,
+			y = newpos.y - v.height, -- tiled defaults to bottom left, we need it to be top.
+			tile = tilepos
+		}
+		if v.visible == nil then
+			layer.entities[k].visible = true
+		else
+			layer.entities[k].visible = v.visible
+		end
+	end
+	layer.draw = function(self)
+		for k,v in ipairs(self.entities) do
+			love.graphics.draw(
+				v.sprite,
+				v.x,
+				v.y
+				-- 0,0,0, --scale and rotation not needed
+				-- 0,v.oy
+			)
+		end
+	end
+
+	layer.update = function(self, dt)
+		local cursor = findbyname(map.layers[2].entities, "cursor")
+		local player1 = findbyname(map.layers[2].entities, "player1")
+		if cursor == nil then
+			print("cursor not found")
+		end
+
+		if love.keyboard.isDown("right") then
+			mover.cursor:moveRight(cursor)
+		elseif love.keyboard.isDown("left") then
+			mover.cursor:moveLeft(cursor)
+		elseif love.keyboard.isDown("up") then
+			mover.cursor:moveUp(cursor)
+		elseif love.keyboard.isDown("down") then
+			mover.cursor:moveDown(cursor)
+		elseif love.keyboard.isDown("a") then
+			if(#mover.movements) < 1 then
+				mover:move(player1, 5, 5)
+			end
+		elseif love.keyboard.isDown("s") then
+			if #mover.movements < 1 then
+				mover:move(player1, 0, 0)
+			end
+		end
+		mover:update(dt)
+	end
+
+	collectgarbage()
+end
+
+function love.update(dt)
+
+	-- local objects = map.layers[2].objects
+	local objects = map.objects
+	for k,v in ipairs(map.layers[2]) do
+		print("key: "..k)
+		print(v)
+	end
+	-- layer.update = function(self)
+	-- 	self.ent.x = self.ent.x + 48 * dt
+	-- end
+
+	
+
+	map:update(dt)
+	
+	
+end
+
+function love.draw()
+	local cursor = findbyname(map.layers[2].entities, "cursor")
+	map:draw(-cursor.x + love.graphics.getWidth()/2, -cursor.y + love.graphics.getHeight()/2)
+	
+	-- love.graphics.print("Hello World")
+	-- love.graphics.print(_VERSION)
+	love.graphics.print(love.timer.getFPS())
+	-- love.graphics.print(guy.name .. guy.stats.strength)
+	-- love.graphics.print(package.path)
+	-- love.graphics.print(stat.name)`
+	
+	if love.keyboard.isDown({"\\"}) then
+		print("debug should be running. 'cont' will resume function. If you press ctrl-d it will exit but will not let you enter debugging again.")
+		love.graphics.print("DEBUGGING ACTIVATED", 20,20)
+		-- debug.debug()
+		print("resuming!")
+	end
+end
