@@ -42,19 +42,3 @@ Init.loadMap = function(filename)
 	
     return map
 end
-
--- some quick test of the gamesave serialization
-local party = {
-	inside = {
-		"string",
-		3,
-		83478,
-		"why?"
-	},
-	another = "value",
-	VARIABLE = 3898,
-	"HELLO!"
-
-}
--- Init.save.saveData(party)
-Init.save.loadData()
