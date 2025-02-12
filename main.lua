@@ -6,47 +6,15 @@ require "code/UI/ui"
 require "code/init/init"
 require "Anim"
 
-
--- Input = {
--- 	lock = "",
--- 	directControl = {
--- 		enabled = true,
--- 		enable = function(self)
--- 			self.enabled = true
--- 			love.keypressed = function(key)
--- 				if key == Config.keys.confirm then map.objects[Index]:action()
--- 				elseif key == "1" then Index = 1
--- 				elseif key == "2" then Index = 2
--- 				elseif key == "3" then Index = 3
--- 				elseif key == "4" then Index = 4
--- 				elseif key == "m" then UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48))
--- 				end
--- 			end
--- 		end,
--- 		disable = function(self)
--- 			self.enabled = false
--- 		end
--- 	}
-
--- }
-
-
-
-
-
-
 -- table used to trigger various debugging levels
 DebuggingLevel = {
-	FPS = true
+	FPS = true, --shows FPS counter
+	plainTextSaves = true, -- note will completely ignore encoded saves if you do this.
+
 }
 
 function love.load()
 	map = Init.loadMap("res/map/outside-test-map.lua")
-	-- cursor = map.layers.cursor
-	-- UI:add(UI.dialogBox.new("This is a test of the emergency broadcast system.\nand this is another.\nAnd a third!"))
-	-- UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48))
-	-- UI:add(UI.dialogBox.new("second test!"))
-
 	local test = map:reachableTiles(3, 02, 5)
 	map.layers.highlight.highlighted = test
 
@@ -84,11 +52,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	-- map:draw(-cursor.position.x + love.graphics.getWidth()/2, -cursor.position.y + love.graphics.getHeight()/2)
 	map:draw(-map.objects[Index].x + love.graphics.getWidth()/2, -map.objects[Index].y + love.graphics.getHeight()/2)
-
-	-- menu:draw()
-	-- dialog:draw()
 	UI:draw()
 
 

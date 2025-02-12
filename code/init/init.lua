@@ -7,6 +7,7 @@ Init.objectsInit = require("code/init/object")
 Init.addHighlightLayer = require("code/init/highlight")
 Init.addCursorLayer = require("code/init/cursor")
 Init.addSupportFunctions = require("code/init/support")
+Init.save = require("code/init/gamesave")
 
 -- For some reason, the checker finds this twice... on the same line.
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -42,3 +43,18 @@ Init.loadMap = function(filename)
     return map
 end
 
+-- some quick test of the gamesave serialization
+local party = {
+	inside = {
+		"string",
+		3,
+		83478,
+		"why?"
+	},
+	another = "value",
+	VARIABLE = 3898,
+	"HELLO!"
+
+}
+-- Init.save.saveData(party)
+Init.save.loadData()
