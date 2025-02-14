@@ -1,9 +1,12 @@
 require "code/init/input"
 local sti = require "code/libs/Simple-Tiled-Implementation/sti"
 
+DB = require("code/init/db")
+print(DB.test)
+
 Init = {}
 
-Init.objectsInit = require("code/init/object")
+Init.Objects = require("code/init/object")
 Init.addHighlightLayer = require("code/init/highlight")
 Init.addCursorLayer = require("code/init/cursor")
 Init.addSupportFunctions = require("code/init/support")
@@ -13,7 +16,8 @@ Init.save = require("code/init/gamesave")
 ---@diagnostic disable-next-line: duplicate-set-field
 Init.loadMap = function(filename)
     local map = sti(filename)
-    Init.objectsInit(map)
+    -- Init.objectsInit(map)
+	Init.Objects:populateObjects(map)
     Init.addHighlightLayer(map)
     Init.addCursorLayer(map)
     Init.addSupportFunctions(map)
@@ -41,4 +45,8 @@ Init.loadMap = function(filename)
 
 	
     return map
+end
+
+Init.newGame = function()
+	Party.active = {DB.characters.Alan}
 end
