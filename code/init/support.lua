@@ -11,11 +11,17 @@ return function(map)
 				-- if  x < 0 or y < 0 then
 				-- 	return {}
 				-- end
-				if self.data[y+1][x+1] then
-					return self.data[y+1][x+1].properties
+				if self.data[y+1] then 
+					if self.data[y+1][x+1] then
+						return self.data[y+1][x+1].properties
+					else
+						return {}
+					end
 				else
 					return {}
 				end
+
+
 			end
 		end
 	end

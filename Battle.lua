@@ -1,5 +1,7 @@
 Battle = {}
 
+Battle.active = false
+
 Battle.queue = {
     lineup = {},
     insert = function(self, combattant)
@@ -41,4 +43,6 @@ Battle.attack = function(self, attacker, defender)
     
 
     UI:add(UI.dialogBox.new(message))
+
+end
 

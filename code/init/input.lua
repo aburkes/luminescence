@@ -11,6 +11,8 @@ Input = {
 		elseif key == "2" then Index = 2
 		elseif key == "3" then Index = 3
 		elseif key == "4" then Index = 4
+        elseif key == "5" then Index = 5
+        elseif key == "s" then Init.save.saveData(Party)
 		elseif key == Config.keys.menu then UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
 		end
     end,

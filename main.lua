@@ -4,7 +4,10 @@ if type(Object) == "nil" then Object = require "code/libs/classic/classic" end
 
 require "code/UI/ui"
 require "code/init/init"
+require "code/Party"
 require "Anim"
+require "Battle"
+
 
 -- table used to trigger various debugging levels
 DebuggingLevel = {
@@ -14,15 +17,28 @@ DebuggingLevel = {
 }
 
 function love.load()
-	map = Init.loadMap("res/map/outside-test-map.lua")
-	local test = map:reachableTiles(3, 02, 5)
-	map.layers.highlight.highlighted = test
+
+
+	-- map = Init.loadMap("res/map/outside-test-map.lua")
+	-- map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
+	Input.directControl:disable()
+
+	local alan = Party:addMember(DB.characters.Alan)
+Party:addMember(DB.characters.Alan)
+	-- local Alan = Init.Objects:objectInit(alan,map)
+	-- table.insert(map.objects, Alan)
+	
+	map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
+
+
+	-- local test = map:reachableTiles(3, 02, 5)
+	-- map.layers.highlight.highlighted = test
 
 
 	
 	Input:release()
 
-	map.objects[2].properties.message = {"message 1", "This is a slightly\nlonger message\ntaking three lines."}
+	-- map.objects[2].properties.message = {"message 1", "This is a slightly\nlonger message\ntaking three lines."}
 
 end
 
@@ -33,7 +49,8 @@ Index = 1
 
 function love.update(dt)
 	for k,v in pairs(map.objects) do
-		v.move:update(dt)
+		if v.move then v.move:update(dt) end
+		-- v.move:update(dt)
 	end
 	Input.directControl:update()
 	map:update(dt)

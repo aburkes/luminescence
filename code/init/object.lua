@@ -3,15 +3,36 @@ return {
     -- get the objects from the object layer, replace the objects layer with a custom layer that has the objects and any extra setup we needed.
     local mapObjects = map.layers.objects.objects
     local objects = {}
+    local positions = {}
     for k,v in ipairs(mapObjects) do
-        table.insert(objects, v)
+        if v.type == "spawnpoint" then
+            --filter out any positions that are beyond the current active party size
+            if v.properties.member <= #Party.active then
+                table.insert(positions, v)
+            end
+        else
+            table.insert(objects, v)
+        end
     end
     local objectsLayer = map:convertToCustomLayer("objects")
     objectsLayer.objects = objects
     
+    -- replace placeholders with characters from party
+    for _, position in ipairs(positions) do
+        local char = Party.active[position.properties.member]
+        for k,v in pairs(char) do
+            if not (k == "tile" or k == "x" or k == "y") then
+                position[k] = v
+            end
+        end
+    end
+    -- add party to map
+    for _,v in ipairs(positions) do table.insert(objects, v) end
+
+
     -- initialize the objects to include the data we need
     for _, object in pairs(objects) do
-        self:objectInit(object, map)
+            self:objectInit(object, map)
     end
 
     objectsLayer.draw = function()
@@ -26,13 +47,19 @@ return {
 
 end,
 objectInit = function(self, object, map, image)
-    object.sprite = love.graphics.newImage(object.properties.image)
+
+    -- object.sprite = love.graphics.newImage(assert(object.properties.image, "object named " .. object.name .." has no defined image!"))
+    local image = assert(object.properties.image, "image not defined for object " .. object.name .. "!")
+    object.sprite = love.graphics.newImage(image)
     object.y = object.y - map.tileheight -- because tiled uses bottom left, while love uses top left.
     -- give tile positions
     object.tile = {
         x = math.floor(object.x / map.tilewidth),
         y = math.floor((object.y - map.tileheight) / map.tileheight) + 1
     }
+    -- snap to tile position
+    object.y = object.tile.y * map.tileheight
+    object.x = object.tile.x * map.tilewidth
     -- we're just moving these around to make code a little less verbose later on.
     if object.type == "fighter" then
         object.stats = object.properties.stats
@@ -153,10 +180,16 @@ objectInit = function(self, object, map, image)
         ---@param self table object to be moved
         ---@param direction string direction to move in
         blockable = function (self, direction)
-            local blockers = {}
+            -- local blockers = {}
 
             local checkMovable = function(tileToCheck, action)
-                blockers = map:objectsAt(tileToCheck.x, tileToCheck.y)
+                local blockers = map:objectsAt(tileToCheck.x, tileToCheck.y)
+                local tile = map.layers.terrain:getTileProperties(tileToCheck.x, tileToCheck.y)
+                if tile.land then
+                    if not tile.land.walkable then
+                        return
+                    end
+                end
                 if #blockers > 0 then
                     local canMove = true
                     for k,v in ipairs(blockers) do
@@ -294,6 +327,9 @@ objectInit = function(self, object, map, image)
     end
 
     return object
+
+end,
+positionInit = function(self,object, map)
 
 end
 
