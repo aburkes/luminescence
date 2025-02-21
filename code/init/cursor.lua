@@ -2,11 +2,12 @@ return function(map)
     -- set up the cursor with it's own layer
     local cursor = map:addCustomLayer("cursor", #map.layers + 1)
         
+    cursor.speed = 300
 
     cursor.tile = {
         -- note 1-indexed!
-        x = 2,
-        y = 1,
+        x = 10,
+        y = 5,
         offsetx = -2,
         offsety = -2,
     }
@@ -34,39 +35,100 @@ return function(map)
     }
 
     cursor.update = function(self, dt)
-        -- do nothing for now
-        if cursor.movement.moving then
-            cursor.movement.timeelapsed = cursor.movement.timeelapsed + dt
-            if cursor.movement.timeelapsed >= cursor.movement.timetowait then
-                cursor.movement.timeelapsed = 0
-                cursor.movement.moving = false
-            end
-        end
+        -- -- do nothing for now
+        -- if cursor.movement.moving then
+        --     cursor.movement.timeelapsed = cursor.movement.timeelapsed + dt
+        --     if cursor.movement.timeelapsed >= cursor.movement.timetowait then
+        --         cursor.movement.timeelapsed = 0
+        --         cursor.movement.moving = false
+        --     end
+        -- end
     end
     -- Cursor movement routines. Make them better later; this is just functional.
     cursor.moveleft = function(self)
-        if self.tile.x > 0 then
-            self.tile.x = self.tile.x - 1
-            self.position.x = self.tile.x * map.tilewidth + self.tile.offsetx
+        if not self.movement.moving then
+            if self.tile.x > 0 then
+                self.movement.moving = true
+                self.tile.x = self.tile.x - 1
+                self.movement.destx = self.tile.x * map.tilewidth + self.tile.offsetx
+                -- self.position.x = self.tile.x * map.tilewidth + self.tile.offsetx
+                self.update = function(self,dt)
+                    if self.position.x > self.movement.destx then
+                        self.position.x = self.position.x - (self.speed * dt)
+                    else
+                        self.position.x = self.movement.destx
+                        self.update = function() end
+                        self.movement.moving = false
+                    end
+                end
+            end
         end
     end
     cursor.moveright = function(self)
-        if self.tile.x < map.width then
-            self.tile.x = self.tile.x + 1
-            self.position.x = self.tile.x * map.tilewidth + self.tile.offsetx
+        if not self.movement.moving then
+            if self.tile.x < map.width then
+                self.movement.moving = true
+                self.tile.x = self.tile.x + 1
+                self.movement.destx = self.tile.x * map.tilewidth + self.tile.offsetx
+                self.update = function(self,dt)
+                    if self.position.x < self.movement.destx then
+                        self.position.x = self.position.x + (self.speed * dt)
+                    else
+                        self.position.x = self.movement.destx
+                        self.update = function() end
+                        self.movement.moving = false
+                    end
+                end
+            end
         end
+        -- if self.tile.x < map.width then
+        --     self.tile.x = self.tile.x + 1
+        --     self.position.x = self.tile.x * map.tilewidth + self.tile.offsetx
+        -- end
     end
     cursor.moveup = function(self)
-        if self.tile.y > 0 then
-            self.tile.y = self.tile.y - 1
-            self.position.y = self.tile.y * map.tileheight + self.tile.offsety
+        if not self.movement.moving then
+            if self.tile.y > 0 then
+                self.movement.moving = true
+                self.tile.y = self.tile.y - 1
+                self.movement.desty = self.tile.y * map.tileheight + self.tile.offsety
+                self.update = function(self, dt)
+                    if self.position.y > self.movement.desty then
+                        self.position.y = self.position.y - (self.speed * dt)
+                    else
+                        self.position.y = self.movement.desty
+                        self.update = function() end
+                        self.movement.moving = false
+                    end
+                end
+            end
         end
+        -- if self.tile.y > 0 then
+        --     self.tile.y = self.tile.y - 1
+        --     self.position.y = self.tile.y * map.tileheight + self.tile.offsety
+        -- end
     end
     cursor.movedown = function(self)
-        if self.tile.y < map.height then
-            self.tile.y = self.tile.y + 1
-            self.position.y = self.tile.y * map.tileheight + self.tile.offsety
+        if not self.movement.moving then
+            if self.tile.x < map.width then
+                self.movement.moving = true
+                self.tile.y = self.tile.y + 1
+                self.movement.desty = self.tile.y * map.tileheight + self.tile.offsety
+                self.update = function(self, dt)
+                    if self.position.y < self.movement.desty then
+                        self.position.y = self.position.y + (self.speed * dt)
+                    else
+                        self.position.y = self.movement.desty
+                        self.update = function() end
+                        self.movement.moving = false
+                    end
+                end
+            end
         end
+        -- if self.tile.y < map.height then
+        --     self.tile.y = self.tile.y + 1
+        --     self.position.y = self.tile.y * map.tileheight + self.tile.offsety
+        -- end
     end
     return cursor
 end

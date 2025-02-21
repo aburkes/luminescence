@@ -15,7 +15,7 @@ UI = {
         for index, element in ipairs(self.carrier) do
             element:update(dt)
         end
-        if #self.carrier == 0 then 
+        if #self.carrier == 0 and not Input.cursorControl.enabled then
             Input.directControl.enabled = true
         else
             Input.directControl.enabled = false

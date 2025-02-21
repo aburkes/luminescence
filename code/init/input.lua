@@ -63,7 +63,7 @@ Input = {
 			self.enabled = false
 		end,
         update = function(self)
-            if Input.directControl.enabled then
+            if self.enabled then
                 local object = map.objects[Index]
                 if love.keyboard.isDown(Config.keys.left) then
                     object.move:blockable("left")
@@ -91,6 +91,43 @@ Input = {
             end
         end
 	},
+    cursorControl = {
+        enabled = false,
+        enable = function(self)
+            self.enabled = true
+            Input.directControl:disable()
+        end,
+        disable = function(self)
+            self.enabled = false
+        end,
+        update = function(self)
+            if self.enabled then
+                if love.keyboard.isDown(Config.keys.left) then
+                    Cursor:moveleft()
+                elseif love.keyboard.isDown(Config.keys.right) then
+                    Cursor:moveright()
+                elseif love.keyboard.isDown(Config.keys.up) then
+                    Cursor:moveup()
+                elseif love.keyboard.isDown(Config.keys.down) then
+                    Cursor:movedown()
+                end
+                if Input.joystick then
+                    local gd = function(button)
+                        return Input.joystick:isGamepadDown(button)
+                    end
+                    if gd(Config.gamepad.up) then
+                        Cursor:moveup()
+                    elseif gd(Config.gamepad.down) then
+                        Cursor:movedown()
+                    elseif gd(Config.gamepad.left) then
+                        Cursor:moveleft()
+                    elseif gd(Config.gamepad.right) then
+                        Cursor:moveright()
+                    end
+                end
+            end
+        end,
+    }
 }
 
 

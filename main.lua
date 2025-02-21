@@ -24,7 +24,8 @@ function love.load()
 	Input.directControl:disable()
 
 	local alan = Party:addMember(DB.characters.Alan)
-Party:addMember(DB.characters.Alan)
+	Party:addMember(DB.characters.Alan)
+	Party:addMember(DB.characters.Sami)
 	-- local Alan = Init.Objects:objectInit(alan,map)
 	-- table.insert(map.objects, Alan)
 	
@@ -35,8 +36,9 @@ Party:addMember(DB.characters.Alan)
 	-- map.layers.highlight.highlighted = test
 
 
-	
+	-- Input.directControl:enable()
 	Input:release()
+	Input.cursorControl:enable()
 
 	-- map.objects[2].properties.message = {"message 1", "This is a slightly\nlonger message\ntaking three lines."}
 
@@ -53,6 +55,7 @@ function love.update(dt)
 		-- v.move:update(dt)
 	end
 	Input.directControl:update()
+	Input.cursorControl:update()
 	map:update(dt)
 	UI:update(dt)
 

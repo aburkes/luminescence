@@ -1,31 +1,38 @@
+
+
 Battle = {}
 
 Battle.active = false
 
-Battle.queue = {
-    lineup = {},
-    insert = function(self, combattant)
-        -- add a unit into the battle queue.
-        -- to do this:
-        -- -- use their agility score to assign a time value
-        -- -- find where they would belong in the queue and then add them in in that position.
-    end,
-    remove = function(self, combattant)
-        for unit, data in ipairs(self.lineup) do
-            if data.id == combattant.id then
-                table.remove (combattant)
-            end
-        end
-    end,
-    advance = function(self)
-        local timeAdvance = self.lineup[1].time
-        for k, unit in ipairs(self.lineup) do
-            unit.time = unit.time - self.lineup[1].time
-        end
-        table.remove(self.lineup, 1)
-    end,
-}
+Battle.combattants = {}
 
+Battle.initiate = function(self, combattants)
+    self.combattants = combattants
+    for _, unit in ipairs(combattants) do
+        local props = unit.properties
+        props.moveTimer = props.stats.agility
+    end
+end
+
+Battle.nextTurn = function(self)
+    local lowest = 9999999
+    for _, unit in ipairs(self.combattants) do
+        if unit.properties.moveTimer < lowest then lowest = unit.properties.moveTimer end
+    end
+    for _, unit in ipairs(self.combattants) do
+        unit.properties.moveTimer = unit.properties.moveTimer - lowest
+    end
+    for which, unit in ipairs(self.combattants) do
+        if unit.properties.moveTimer == 0 then 
+            unit.properties.moveTimer = unit.properties.stats.agility -- must reset or will get to move infinitely!
+            return self.combattants[which]
+        end
+    end
+    assert(false, "Something is very wrong with Battle.nextTurn method") -- we should never see this.
+end
+
+
+--Does this need to be part of the Battle object? Would there be a better place to put this?
 Battle.attack = function(self, attacker, defender)
     -- This is gonna be complex Hold on to your butts!
 
@@ -45,4 +52,5 @@ Battle.attack = function(self, attacker, defender)
     UI:add(UI.dialogBox.new(message))
 
 end
+
 

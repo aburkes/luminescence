@@ -5,7 +5,7 @@ return {
         -- prep data for saving
 
         local getPartyMemberData = function(member)
-            out = {}
+            local out = {}
             out.class = member.class
             out.gain = member.gain
             out.image = member.image

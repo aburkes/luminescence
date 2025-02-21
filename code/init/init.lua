@@ -21,6 +21,8 @@ Init.loadMap = function(filename)
     Init.addHighlightLayer(map)
     Init.addCursorLayer(map)
     Init.addSupportFunctions(map)
+	
+	Cursor = map.layers.cursor
 
 
 	-- -- there is a strange bug of sorts in Tiled that gives bogus height and width numbers for infinate maps.
