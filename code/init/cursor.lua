@@ -2,12 +2,12 @@ return function(map)
     -- set up the cursor with it's own layer
     local cursor = map:addCustomLayer("cursor", #map.layers + 1)
         
-    cursor.speed = 300
+    cursor.speed = 400
 
     cursor.tile = {
         -- note 1-indexed!
-        x = 10,
-        y = 5,
+        x = 2,
+        y = 2,
         offsetx = -2,
         offsety = -2,
     }
@@ -130,5 +130,40 @@ return function(map)
         --     self.position.y = self.tile.y * map.tileheight + self.tile.offsety
         -- end
     end
+
+    cursor.snapTo = function(self, x, y)
+        self.tile.x = x
+        self.tile.y = y
+        self.position.x = x * map.tilewidth
+        self.position.y = x * map.tileheight
+    end
+
+    --- It's probably better to use Input.cursorControl:moveTo()?
+    cursor.moveTo = function(self, x, y)
+        self.tile.x = x
+        self.tile.y = y
+        self.movement.destx = x * map.tilewidth
+        self.movement.desty = y * map.tileheight
+        self.update = function(self, dt)
+            Input.cursorControl:disable()
+            if self.position.x < self.movement.destx then
+                self.position.x = self.position.x + (self.speed * dt)
+                if self.position.x > self.movement.destx then self.position.x = self.movement.destx end
+            elseif self.position.x > self.movement.destx then
+                self.position.x = self.position.x - (self.speed * dt)
+                if self.position.x < self.movement.destx then self.position.x = self.movement.destx end
+            elseif self.position.y > self.movement.desty then
+                self.position.y = self.position.y - (self.speed * dt)
+                if self.position.y < self.movement.desty then self.position.y = self.movement.desty end
+            elseif self.position.y < self.movement.desty then
+                self.position.y = self.position.y + (self.speed * dt)
+                if self.position.y > self.movement.desty then self.position.y = self.movement.desty end
+            elseif self.position.x == self.movement.destx and self.position.y == self.movement.desty then
+                self.update = function() end
+                Input.cursorControl:enable()
+            end
+        end
+    end
+
     return cursor
 end

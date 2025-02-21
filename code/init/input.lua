@@ -54,7 +54,7 @@ Input = {
     end,
 
     directControl = {
-		enabled = true,
+		enabled = false,
 		enable = function(self)
 			self.enabled = true
 			Input:release()
@@ -127,6 +127,33 @@ Input = {
                 end
             end
         end,
+        moveTo = function(self, x, y)
+            Cursor:moveTo(x, y)
+            -- I realized it made more sense to just make the cursor do it's thing than it did to reimpliment it, but here was the old code just in case.
+        --     Cursor.tile.x = x
+        --     Cursor.tile.y = y
+        --     Cursor.movement.destx = x * map.tilewidth
+        --     Cursor.movement.desty = y * map.tileheight
+        --     Cursor.update = function(slef, dt)
+        --         Input.cursorControl:disable()
+        --         if Cursor.position.x < Cursor.movement.destx then
+        --             Cursor.position.x = Cursor.position.x + (Cursor.speed * dt)
+        --             if Cursor.position.x > Cursor.movement.destx then Cursor.position.x = Cursor.movement.destx end
+        --         elseif Cursor.position.x > Cursor.movement.destx then
+        --             Cursor.position.x = Cursor.position.x - (Cursor.speed * dt)
+        --             if Cursor.position.x < Cursor.movement.destx then Cursor.position.x = Cursor.movement.destx end
+        --         elseif Cursor.position.y > Cursor.movement.desty then
+        --             Cursor.position.y = Cursor.position.y - (Cursor.speed * dt)
+        --             if Cursor.position.y < Cursor.movement.desty then Cursor.position.y = Cursor.movement.desty end
+        --         elseif Cursor.position.y < Cursor.movement.desty then
+        --             Cursor.position.y = Cursor.position.y + (Cursor.speed * dt)
+        --             if Cursor.position.y > Cursor.movement.desty then Cursor.position.y = Cursor.movement.desty end
+        --         elseif Cursor.position.x == Cursor.movement.destx and Cursor.position.y == Cursor.movement.desty then
+        --             slef.update = function() end
+        --             Input.cursorControl:enable()
+        --         end
+        --     end
+        end
     }
 }
 

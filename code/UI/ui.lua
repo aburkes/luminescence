@@ -15,11 +15,11 @@ UI = {
         for index, element in ipairs(self.carrier) do
             element:update(dt)
         end
-        if #self.carrier == 0 and not Input.cursorControl.enabled then
-            Input.directControl.enabled = true
-        else
-            Input.directControl.enabled = false
-        end
+        -- if #self.carrier == 0 and not Input.cursorControl.enabled then
+        --     Input.directControl.enabled = true
+        -- else
+        --     Input.directControl.enabled = false
+        -- end
     end,
     -- calls the draw function in all elements in the carrier; only to be placed in the love.draw callback.
     draw = function(self)

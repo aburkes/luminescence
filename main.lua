@@ -72,7 +72,8 @@ function love.update(dt)
 end
 
 function love.draw()
-	map:draw(-map.objects[Index].x + love.graphics.getWidth()/2, -map.objects[Index].y + love.graphics.getHeight()/2)
+	-- map:draw(-map.objects[Index].x + love.graphics.getWidth()/2, -map.objects[Index].y + love.graphics.getHeight()/2)
+	map:draw(-Cursor.position.x + love.graphics.getWidth()/2, -Cursor.position.y + love.graphics.getHeight()/2)
 	UI:draw()
 
 
