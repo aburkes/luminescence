@@ -1,7 +1,7 @@
 Input = {
 
-    keyHandler = function() end,
-    gamepadHandler = function() end,
+    keyHandler = function(key, scan, isRepeat) end,
+    gamepadHandler = function(joystick, button) end,
     joysticks = love.joystick.getJoysticks(),
 
     --default keyboard handler function
@@ -159,12 +159,10 @@ Input = {
 
 
 love.keypressed = function(key, scan, isRepeat)
----@diagnostic disable-next-line: redundant-parameter
     Input.keyHandler(key, scan, isRepeat)
 end
 
 love.gamepadpressed = function(joystick, button)
----@diagnostic disable-next-line: redundant-parameter
     Input.gamepadHandler(joystick, button)
 end
 

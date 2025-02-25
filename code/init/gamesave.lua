@@ -1,4 +1,7 @@
+
 require("code/libs/TSerial")
+if not TSerial then TSerial = require("code/libs/TSerial") end
+
 return {
     saveData = function(party, filename)
 

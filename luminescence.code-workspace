@@ -4,5 +4,27 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/Thumbs.db": true,
+			"**/code/libs/Simple-Tiled-Implementation": true,
+			"**/code/libs/classic": true,
+			"**/code/libs/Jumper": true,
+			"**/code/libs/TSerial.lua": true
+		},
+		"search.exclude": {
+			"**/node_modules": true,
+			"**/bower_components": true,
+			"**/*.code-search": true,
+			"**/code/libs/Simple-Tiled-Implementation": true,
+			"**/code/libs/classic": true,
+			"**/code/libs/Jumper": true,
+			"**/code/libs/TSerial.lua": true
+		}
+	}
 }
