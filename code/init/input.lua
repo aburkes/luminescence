@@ -96,9 +96,35 @@ Input = {
         enable = function(self)
             self.enabled = true
             Input.directControl:disable()
+            Input.realtimeControl:set(function(self)
+                if love.keyboard.isDown(Config.keys.left) then
+                    Cursor:moveleft()
+                elseif love.keyboard.isDown(Config.keys.right) then
+                    Cursor:moveright()
+                elseif love.keyboard.isDown(Config.keys.up) then
+                    Cursor:moveup()
+                elseif love.keyboard.isDown(Config.keys.down) then
+                    Cursor:movedown()
+                end
+                if Input.joystick then
+                    local gd = function(button)
+                        return Input.joystick:isGamepadDown(button)
+                    end
+                    if gd(Config.gamepad.up) then
+                        Cursor:moveup()
+                    elseif gd(Config.gamepad.down) then
+                        Cursor:movedown()
+                    elseif gd(Config.gamepad.left) then
+                        Cursor:moveleft()
+                    elseif gd(Config.gamepad.right) then
+                        Cursor:moveright()
+                    end
+                end
+            end)
         end,
         disable = function(self)
             self.enabled = false
+            Input.realtimeControl:disable()
         end,
         update = function(self)
             if self.enabled then
@@ -129,31 +155,20 @@ Input = {
         end,
         moveTo = function(self, x, y)
             Cursor:moveTo(x, y)
-            -- I realized it made more sense to just make the cursor do it's thing than it did to reimpliment it, but here was the old code just in case.
-        --     Cursor.tile.x = x
-        --     Cursor.tile.y = y
-        --     Cursor.movement.destx = x * map.tilewidth
-        --     Cursor.movement.desty = y * map.tileheight
-        --     Cursor.update = function(slef, dt)
-        --         Input.cursorControl:disable()
-        --         if Cursor.position.x < Cursor.movement.destx then
-        --             Cursor.position.x = Cursor.position.x + (Cursor.speed * dt)
-        --             if Cursor.position.x > Cursor.movement.destx then Cursor.position.x = Cursor.movement.destx end
-        --         elseif Cursor.position.x > Cursor.movement.destx then
-        --             Cursor.position.x = Cursor.position.x - (Cursor.speed * dt)
-        --             if Cursor.position.x < Cursor.movement.destx then Cursor.position.x = Cursor.movement.destx end
-        --         elseif Cursor.position.y > Cursor.movement.desty then
-        --             Cursor.position.y = Cursor.position.y - (Cursor.speed * dt)
-        --             if Cursor.position.y < Cursor.movement.desty then Cursor.position.y = Cursor.movement.desty end
-        --         elseif Cursor.position.y < Cursor.movement.desty then
-        --             Cursor.position.y = Cursor.position.y + (Cursor.speed * dt)
-        --             if Cursor.position.y > Cursor.movement.desty then Cursor.position.y = Cursor.movement.desty end
-        --         elseif Cursor.position.x == Cursor.movement.destx and Cursor.position.y == Cursor.movement.desty then
-        --             slef.update = function() end
-        --             Input.cursorControl:enable()
-        --         end
-        --     end
+            -- I realized it made more sense to just make the cursor do it's thing than it did to reimpliment it. Consider this to be depreciated!
         end
+    },
+    realtimeControl = {
+        update = function(dt)
+            -- something happens here
+        end,
+        set = function(self, controlFunction)
+            self.update = controlFunction
+        end,
+        disable = function(self)
+            self.update = function() end
+        end
+            
     }
 }
 

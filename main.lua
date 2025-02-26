@@ -32,6 +32,8 @@ function love.load()
 	Input.cursorControl:enable()
 
 	map.layers.highlight.highlighted = map.objects[2]:getMovements(map)
+	-- map.objects[2]:userControl("battle")
+	Input.cursorControl:enable()
 
 
 end
@@ -47,7 +49,8 @@ function love.update(dt)
 		-- v.move:update(dt)
 	end
 	Input.directControl:update()
-	Input.cursorControl:update()
+	-- Input.cursorControl:update()
+	Input.realtimeControl:update()
 	map:update(dt)
 	UI:update(dt)
 

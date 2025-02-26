@@ -216,6 +216,27 @@ objectInit = function(self, object, map, image)
             self.parent.facing = direction
         end,
 
+        battleMove = function(self, direction)
+            local x, y = self.parent.tile.x, self.parent.tile.y
+            local function moveable(x,y)
+                for _,v in ipairs(map.layers.highlight.highlighted) do
+                    if v[1] == x and v[2] == y then
+                        return true
+                    end
+                end
+                return false
+            end
+            if direction == "left" and moveable(x-1, y) then
+                self:left()
+            elseif direction == "right" and moveable(x+1, y) then
+                self:right()
+            elseif direction == "up" and moveable(x, y-1) then
+                self:up()
+            elseif direction == "down" and moveable(x, y+1) then
+                self:down()
+            end
+        end,
+
         ---Executes a queue of moves. Note it does not check for blockers.
         ---@param self table
         ---@param queue table an optional table of directions to replace the object's queue to follow.
@@ -395,6 +416,51 @@ objectInit = function(self, object, map, image)
         end
 
         return highlightList
+    end
+
+    object.userControl = function(self, type)
+        if type == "battle" then
+            Input.cursorControl:disable()
+            -- Input:setKeyHandler(function(key)
+            --     if key == Config.keys.down then
+            --         self.move:battleMove("down")
+            --     elseif  key == Config.keys.up then
+            --         self.move:battleMove("up")
+            --     elseif key == Config.keys.left then
+            --         self.move:battleMove("left")
+            --     elseif key == Config.keys.right then
+            --         self.move:battleMove("right")
+            --     end
+            -- end)
+            Input.realtimeControl:set(function(dt)
+                if love.keyboard.isDown(Config.keys.down) then
+                    self.move:battleMove("down")
+                elseif love.keyboard.isDown(Config.keys.up) then
+                    self.move:battleMove("up")
+                elseif love.keyboard.isDown(Config.keys.left) then
+                    self.move:battleMove("left")
+                elseif love.keyboard.isDown(Config.keys.right) then
+                    self.move:battleMove("right")
+                end
+                if Input.joystick then
+                    local gd = function(button)
+                        return Input.joystick:isGamepadDown(button)
+                    end
+                    if gd(Config.gamepad.up) then
+                        self.move:battleMove("up")
+                    elseif gd(Config.gamepad.down) then
+                        self.move:battleMove("down")
+                    elseif gd(Config.gamepad.left) then
+                        self.move:battleMove("left")
+                    elseif gd(Config.gamepad.right) then
+                        self.move:battleMove("right")
+                    end
+                end
+            end)
+
+        end
+        -- otherwise....
+
     end
         
 
