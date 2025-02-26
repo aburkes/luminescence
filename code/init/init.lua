@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field
 require "code/init/input"
 local sti = require "code/libs/Simple-Tiled-Implementation/sti"
 -- local sti = require "sti"

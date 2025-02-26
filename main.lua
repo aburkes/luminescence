@@ -18,7 +18,6 @@ DebuggingLevel = {
 
 function love.load()
 
-
 	-- map = Init.loadMap("res/map/outside-test-map.lua")
 	-- map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
 	Input.directControl:disable()
@@ -26,21 +25,14 @@ function love.load()
 	local alan = Party:addMember(DB.characters.Alan)
 	Party:addMember(DB.characters.Alan)
 	Party:addMember(DB.characters.Sami)
-	-- local Alan = Init.Objects:objectInit(alan,map)
-	-- table.insert(map.objects, Alan)
 	
 	map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
 
-
-	-- local test = map:reachableTiles(3, 02, 5)
-	-- map.layers.highlight.highlighted = test
-
-
-	-- Input.directControl:enable()
 	Input:release()
 	Input.cursorControl:enable()
 
-	-- map.objects[2].properties.message = {"message 1", "This is a slightly\nlonger message\ntaking three lines."}
+	map.layers.highlight.highlighted = map.objects[2]:getMovements(map)
+
 
 end
 

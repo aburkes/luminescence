@@ -292,7 +292,7 @@ objectInit = function(self, object, map, image)
         end
     }
 
-    ---does the action according to the object's facing.
+    ---does the action according to the object's facing. Very broken right now!
     object.action = function(self)
         if self.facing == "right" then
             local subject = map:objectsAt(self.tile.x + 1, self.tile.y)
@@ -326,11 +326,83 @@ objectInit = function(self, object, map, image)
         end
     end
 
+    ---Checks the map location and returns the cost to move to that location.
+    ---@param self any
+    ---@param location table The location to move to.
+    object.moveCost = function(self, location)
+        -- for a test we will just always return one. I guess we're flying.
+        return 1
+    end
+
+    object.canMove = function(self, x, y)
+
+        if x < 1 or y < 1 or x > map.width or y > map.height then return false end
+
+        -- local objects = map:objectsAt(x, y)
+        for _, thing in ipairs(map:objectsAt(x, y)) do
+            if thing.properties.team and thing.visible then
+                if not self.properties.team == thing.properties.team then return false end
+            end
+        end
+
+        return true
+
+    end
+
+    ---Creates a table of valid moves for the combattant.
+    ---@param self any
+    ---@param map map the map the objects is part of
+    ---@return table
+    object.getMovements = function(self)
+        -- local terrain = map.layers.terrain
+        -- local position = {self.tile.x, self.tile.y}
+        local speed = self.properties.stats.agility
+        
+        -- local stamina = speed --determines how much we can move.
+        local searchQueue = {}
+        table.insert(searchQueue, {x = self.tile.x, y = self.tile.y, stamina = speed})
+        local reachable = {}
+        local visited = {}
+        visited[self.tile.x .. "," .. self.tile.y] = true
+
+        local directions = {
+            {x = 0, y = -1},
+            {x = 1, y = 0},
+            {x = 0, y = 1},
+            {x = -1, y = 0}
+        }
+        while #searchQueue > 0 do
+            local current = table.remove(searchQueue, 1)
+            table.insert (reachable, {x = current.x, y = current.y})
+
+            if current.stamina > 0 then
+                for _, dir in ipairs(directions) do
+                    local newX, newY = current.x + dir.x, current.y + dir.y
+                    local key = newX .. "," .. newY
+
+
+                    -- checks go here
+                    if not visited[key] and self:canMove(newX, newY) then
+                        visited[key] = true
+                        table.insert(searchQueue, {x = newX, y = newY, stamina = current.stamina - self:moveCost(newX, newY)})
+                    end
+                end
+            end
+        end
+        local highlightList = {}
+        for _, v in ipairs(reachable) do
+            table.insert(highlightList, {v.x, v.y})
+        end
+
+        return highlightList
+    end
+        
+
     return object
 
 end,
-positionInit = function(self,object, map)
+-- positionInit = function(self,object, map)
 
-end
+-- end
 
 }

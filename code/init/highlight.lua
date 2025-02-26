@@ -3,7 +3,7 @@ return function(map)
     -- highlight layer for highlighting tiles
 	local highlight = map:addCustomLayer("highlight", #map.layers + 1)
 	highlight.graphic = love.graphics.newImage("res/sprite/whiteblock.png")
-	highlight.highlighted = {{1,1}, {1,2}, {1,3}, {1,4}, {0,0}}
+	highlight.highlighted = {}
 	highlight.opacity = 1
 	highlight.opacitymax = 0.4
 	highlight.opacitymin = 0.0
