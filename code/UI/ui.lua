@@ -2,6 +2,7 @@ require "Anim"
 UI = {
     dialogBox = require("code/UI/dialogBox"),
     quadMenu = require("code/UI/quadMenu"),
+    battleStats = require("code/UI/battleStats"),
     carrier = {}, -- holds UI elements
     ---Adds UI elements to the carrier.
     ---@param element table The UI element to add to the carrier

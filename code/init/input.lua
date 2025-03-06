@@ -105,6 +105,8 @@ Input = {
                     Cursor:moveup()
                 elseif love.keyboard.isDown(Config.keys.down) then
                     Cursor:movedown()
+                elseif love.keyboard.isDown(Config.keys.confirm) then
+                    Cursor:showUnitInfo()
                 end
                 if Input.joystick then
                     local gd = function(button)

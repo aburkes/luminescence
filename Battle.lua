@@ -16,12 +16,15 @@ end
 
 Battle.nextTurn = function(self)
     local lowest = 9999999
+    -- makes lowest equal to the lowest moveTimer value
     for _, unit in ipairs(self.combattants) do
         if unit.properties.moveTimer < lowest then lowest = unit.properties.moveTimer end
     end
+    --subtracts the lowest value from each unit's moveTimer
     for _, unit in ipairs(self.combattants) do
         unit.properties.moveTimer = unit.properties.moveTimer - lowest
     end
+    --selects the first unit with a zero moveTimer value.
     for which, unit in ipairs(self.combattants) do
         if unit.properties.moveTimer == 0 then 
             unit.properties.moveTimer = unit.properties.stats.agility -- must reset or will get to move infinitely!
@@ -43,7 +46,7 @@ Battle.attack = function(self, attacker, defender)
         attacker.name .. " attacks " .. defender .. " for ",
         damageDealt .. " damage!"
     }
-    if defender.stats.hp <= 0 then 
+    if defender.stats.hp <= 0 then
         table.insert(message, defender.name .. " falls!")
         Battle.queue:remove(defender)
     end

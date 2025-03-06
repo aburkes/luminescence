@@ -6,6 +6,7 @@ return {
         level = 1,
         hpmax = 10,
         mpmax = 10,
+        attack = 4,
         defense = 4,
         agility = 4,
         movement = 6,

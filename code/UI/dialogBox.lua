@@ -1,4 +1,10 @@
+---@class dialogBox
+---@field new function
 return {
+    ---Creates a new dialogBox.
+    ---@param text string text to be displayed
+    ---@param thenDo function function to be called after completing the dialogBox.
+    ---@return dialogBox
     new = function(text, thenDo)
         Input.directControl:disable()
         local object = {

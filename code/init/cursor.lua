@@ -165,5 +165,17 @@ return function(map)
         end
     end
 
+    cursor.activate = function(self)
+        Input.cursorControl:enable()
+    end
+
+    ---gets the object at the cursor's current position and displays it's stats
+    ---@param self unknown
+    cursor.showUnitInfo = function(self)
+        local objects = map:objectsAt(self.tile.x, self.tile.y)
+        UI:add(UI.battleStats.new(objects[1]))
+    end
+
+
     return cursor
 end

@@ -84,8 +84,13 @@ Config = {
 			hinting = "normal",
 			-- hinting = "light",
 			-- hinting = "none",
-
 			dpiscale = nil --
+		},
+		small = {
+			filename = "res/shining-force-small.ttf",
+			size = 36/2,
+			hinting = "normal",
+			dpiscale = nil
 		}
 	},
 	menu = {

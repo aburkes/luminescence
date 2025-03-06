@@ -14,10 +14,16 @@ Init.addCursorLayer = require("code/init/cursor")
 Init.addSupportFunctions = require("code/init/support")
 Init.save = require("code/init/gamesave")
 
--- For some reason, the checker finds this twice... on the same line.
----@diagnostic disable-next-line: duplicate-set-field
+---loads a map for 'adventure mode'
+---@param filename string map file to load, in lua format.
+---@return map
 Init.loadMap = function(filename)
-    local map = sti(filename)
+	---@class map
+	---@field layers table
+	---@field objects table
+    local map = {}
+	
+	map = sti(filename)
 	Init.Objects:populateObjects(map)
     Init.addHighlightLayer(map)
     Init.addCursorLayer(map)
@@ -73,7 +79,8 @@ Init.newGame = function()
 	Party.active = {DB.characters.Alan}
 end
 
-
+---Loads a map initialized for a battle
+---@param filename string location of map in lua format.
 Init.loadBattleMap = function(filename)
     local map = sti(filename)
 	Init.Objects:populateObjects(map)

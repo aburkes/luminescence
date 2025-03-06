@@ -20,6 +20,8 @@ return {
     -- replace placeholders with characters from party
     for _, position in ipairs(positions) do
         local char = Party.active[position.properties.member]
+        --give them full hp and mp
+        char.stats.hp, char.stats.mp = char.stats.hpmax, char.stats.mpmax
         for k,v in pairs(char) do
             if not (k == "tile" or k == "x" or k == "y") then
                 position[k] = v
@@ -67,6 +69,7 @@ objectInit = function(self, object, map, image)
         -- give them maximums for hp and mp. For now they all get maximums.
         object.stats.hpmax = object.stats.hp
         object.stats.mpmax = object.stats.mp
+        object.class = object.properties.class
     end
     object.move = {
         parent = object,
@@ -372,7 +375,6 @@ objectInit = function(self, object, map, image)
 
     ---Creates a table of valid moves for the combattant.
     ---@param self any
-    ---@param map map the map the objects is part of
     ---@return table
     object.getMovements = function(self)
         -- local terrain = map.layers.terrain
