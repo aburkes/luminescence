@@ -6,6 +6,11 @@ Battle.active = false
 
 Battle.combattants = {}
 
+Battle.turn = {
+    unit = {},
+    startingPosition = {}
+}
+
 Battle.initiate = function(self, combattants)
     self.combattants = combattants
     for _, unit in ipairs(combattants) do
@@ -34,6 +39,9 @@ Battle.nextTurn = function(self)
     assert(false, "Something is very wrong with Battle.nextTurn method") -- we should never see this.
 end
 
+Battle.initiateTurn = function(self, unit)
+    Input.cursorControl.moveTo(1,1)
+end
 
 --Does this need to be part of the Battle object? Would there be a better place to put this?
 Battle.attack = function(self, attacker, defender)

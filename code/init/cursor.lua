@@ -173,7 +173,9 @@ return function(map)
     ---@param self unknown
     cursor.showUnitInfo = function(self)
         local objects = map:objectsAt(self.tile.x, self.tile.y)
-        UI:add(UI.battleStats.new(objects[1]))
+        if( objects[1] ~= nil) then
+            UI:add(UI.battleStats.new(objects[1]))
+        end
     end
 
 

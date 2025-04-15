@@ -1,9 +1,13 @@
 ---@class battleStats
+---@field draw function 
+---@field update function
+---@field destroy function
 return {
+    ---Creates a new battleStats object
+    ---@param unit table
+    ---@param thenDo function function to be done after destroying this object
+    ---@return battleStats
     new = function(unit, thenDo)
-
-        print("battleStats.new has been called")
-
         local object = {
             font = UI.fonts.small,
             lineheight = 0,
@@ -14,6 +18,7 @@ return {
             },
             thenDo = thenDo
         }
+        
         assert(unit.stats, "Unit given does not include stats.")
         local stats = unit.stats
 

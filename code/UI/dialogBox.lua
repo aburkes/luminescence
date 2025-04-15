@@ -66,18 +66,6 @@ return {
         }
         object.text = love.graphics.newText(UI.fonts.dialog, "") -- dumb way to prevent this from trying to get an uninitialized texture.
 
-        -- set up input handling
-        -- object.oldInputHandler = love.keypressed
-        -- ---@diagnostic disable-next-line: duplicate-set-field
-        -- love.keypressed = function(key)
-        --     if key == Config.keys.confirm then
-        --         if object.status == "printing" then
-        --             object.script.character = #object.script.text
-        --         elseif object.status == "waiting" then
-        --             object:scrollToDeath()
-        --         end
-        --     end
-        -- end
         object.oldInputHandler = love.keypressed
         ---@diagnostic disable-next-line: duplicate-set-field
         Input:setKeyHandler(
