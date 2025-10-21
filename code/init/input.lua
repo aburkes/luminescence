@@ -18,9 +18,9 @@ Input = {
     end,
     
     ---Replaces the keyboard event handler with an arbitrary replacement
-    ---Replacement arguement should have at least one arguement (for `key`) or it won't do anything.
+    ---Replacement argument should have at least one argument (for `key`) or it won't do anything.
     ---@param self any
-    ---@param newHandler function your replacement keyboard handler function. Make sure it includes at least one arguement.
+    ---@param newHandler function your replacement keyboard handler function. Make sure it includes at least one argument.
     setKeyHandler = function(self, newHandler)
         self.keyHandler = newHandler
     end,
@@ -41,7 +41,7 @@ Input = {
         end
     end,
     ---Replaces the gamepad event handler with an arbitrary replacement.
-    ---Repalcement arguements should have two arguements - `joystick` and `button`.
+    ---replacement arguments should have two arguments - `joystick` and `button`.
     ---@param newHandler function replacement handler function
     setGamepadHandler = function(self, newHandler)
         self.gamepadHandler = newHandler
@@ -98,13 +98,13 @@ Input = {
             Input.directControl:disable()
             Input.realtimeControl:set(function(self)
                 if love.keyboard.isDown(Config.keys.left) then
-                    Cursor:moveleft()
+                    Cursor:moveLeft()
                 elseif love.keyboard.isDown(Config.keys.right) then
-                    Cursor:moveright()
+                    Cursor:moveRight()
                 elseif love.keyboard.isDown(Config.keys.up) then
-                    Cursor:moveup()
+                    Cursor:moveUp()
                 elseif love.keyboard.isDown(Config.keys.down) then
-                    Cursor:movedown()
+                    Cursor:moveDown()
                 elseif love.keyboard.isDown(Config.keys.confirm) then
                     Cursor:showUnitInfo()
                 end
@@ -113,13 +113,13 @@ Input = {
                         return Input.joystick:isGamepadDown(button)
                     end
                     if gd(Config.gamepad.up) then
-                        Cursor:moveup()
+                        Cursor:moveUp()
                     elseif gd(Config.gamepad.down) then
-                        Cursor:movedown()
+                        Cursor:moveDown()
                     elseif gd(Config.gamepad.left) then
-                        Cursor:moveleft()
+                        Cursor:moveLeft()
                     elseif gd(Config.gamepad.right) then
-                        Cursor:moveright()
+                        Cursor:moveRight()
                     end
                 end
             end)
@@ -131,26 +131,26 @@ Input = {
         update = function(self)
             if self.enabled then
                 if love.keyboard.isDown(Config.keys.left) then
-                    Cursor:moveleft()
+                    Cursor:moveLeft()
                 elseif love.keyboard.isDown(Config.keys.right) then
-                    Cursor:moveright()
+                    Cursor:moveRight()
                 elseif love.keyboard.isDown(Config.keys.up) then
-                    Cursor:moveup()
+                    Cursor:moveUp()
                 elseif love.keyboard.isDown(Config.keys.down) then
-                    Cursor:movedown()
+                    Cursor:moveDown()
                 end
                 if Input.joystick then
                     local gd = function(button)
                         return Input.joystick:isGamepadDown(button)
                     end
                     if gd(Config.gamepad.up) then
-                        Cursor:moveup()
+                        Cursor:moveUp()
                     elseif gd(Config.gamepad.down) then
-                        Cursor:movedown()
+                        Cursor:moveDown()
                     elseif gd(Config.gamepad.left) then
-                        Cursor:moveleft()
+                        Cursor:moveLeft()
                     elseif gd(Config.gamepad.right) then
-                        Cursor:moveright()
+                        Cursor:moveRight()
                     end
                 end
             end

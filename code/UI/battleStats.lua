@@ -5,7 +5,7 @@
 return {
     ---Creates a new battleStats object
     ---@param unit table
-    ---@param thenDo function function to be done after destroying this object
+    ---@param thenDo function? function to be done after destroying this object
     ---@return battleStats
     new = function(unit, thenDo)
         local object = {

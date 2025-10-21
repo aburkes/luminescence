@@ -25,6 +25,11 @@
 			"**/code/libs/classic": true,
 			"**/code/libs/Jumper": true,
 			"**/code/libs/TSerial.lua": true
-		}
+		},
+		"cSpell.words": [
+			"blockable",
+			"tileheight",
+			"tilewidth"
+		]
 	}
 }

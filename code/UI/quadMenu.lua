@@ -1,5 +1,15 @@
 return {
-    new = function(image,itemwidth,itemheight, action1, action2, action3, action4, cancel)
+    --- Creates a new quadMenu object
+    --- @param image string path of the image strip to load
+    --- @param itemWidth integer the width of a single menu entry
+    --- @param itemHeight integer the height of a single menu entry
+    --- @param action1 function? the function to be called for the northern item 
+    --- @param action2 function? the function to be called for the eastern item 
+    --- @param action3 function? the function to be called for the southern item
+    --- @param action4 function? the function to be called for the western item
+    --- @param cancel function? the function to be called upon pressing the cancel button
+    new = function(image,itemWidth,itemHeight, action1, action2, action3, action4, cancel)
+        
         local screenOffset = 20 -- pixels from bottom of screen
         local screenWidth = love.graphics.getWidth()
         local screenHeight = love.graphics.getHeight()
@@ -10,12 +20,12 @@ return {
         -- center point of menu
         local centerpoint = {
             x = screenWidth / 2,
-            y = screenHeight - screenOffset - itemheight * 2
+            y = screenHeight - screenOffset - itemHeight * 2
         }
-        -- halfpoint for menu items
+        -- half-point for menu items
         local iconOffset = {
-            x = itemwidth / 2,
-            y = itemheight / 2
+            x = itemWidth / 2,
+            y = itemHeight / 2
         }
         local menu = {
             {
@@ -24,7 +34,7 @@ return {
                 action = action1 or function() print("Action 1 activated!")  end
             },
             {
-                x = centerpoint.x + itemwidth - iconOffset.x,
+                x = centerpoint.x + itemWidth - iconOffset.x,
                 y = centerpoint.y,
                 action = action2 or function() print ("Action 2 activated!") end
             },
@@ -34,7 +44,7 @@ return {
                 action = action3 or function() print("Action 3 Activated!") end
             },
             {
-                x = centerpoint.x -itemwidth - iconOffset.x,
+                x = centerpoint.x -itemWidth - iconOffset.x,
                 y = centerpoint.y,
                 action = action4 or function() print("Action 4 activated!") end
             },
@@ -58,7 +68,7 @@ return {
         end
         Input.lock = menu.lock
 
-        local quads = Anim.loadMultistrip(image, itemwidth, itemheight)
+        local quads = Anim.loadMultistrip(image, itemWidth, itemHeight)
 
         for key, frames in ipairs(menu) do
             -- menu[key].sprite = image
@@ -90,7 +100,8 @@ return {
                 elseif key == Config.keys.confirm then
                     menu[menu.selected].action()
                     menu:destroy()
-                elseif key == Config.keys.cancel then cancel()
+                elseif key == Config.keys.cancel then 
+                    if type(cancel) == "function" then cancel() end
                 end
             end
         )
