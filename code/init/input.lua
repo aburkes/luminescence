@@ -16,7 +16,7 @@ Input = {
 		elseif key == Config.keys.menu then UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
 		end
     end,
-    
+
     ---Replaces the keyboard event handler with an arbitrary replacement
     ---Replacement argument should have at least one argument (for `key`) or it won't do anything.
     ---@param self any
@@ -36,7 +36,7 @@ Input = {
         if button == Config.gamepad.confirm then
             map.objects[Index]:action()
         elseif button == Config.gamepad.menu then
-            UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, "arbitrary", nil, nil, nil, nil))
+            UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, function() end, nil, nil, nil, nil))
 
         end
     end,
@@ -157,20 +157,43 @@ Input = {
         end,
         moveTo = function(self, x, y)
             Cursor:moveTo(x, y)
-            -- I realized it made more sense to just make the cursor do it's thing than it did to reimpliment it. Consider this to be depreciated!
+            -- I realized it made more sense to just make the cursor do it's thing than it did to reimplement it. Consider this to be depreciated!
         end
     },
     realtimeControl = {
+        --- handles input
         update = function(dt)
             -- something happens here
         end,
+
+        ---sets a function to handle input
+        ---@param self any
+        ---@param controlFunction function to run on screen update
         set = function(self, controlFunction)
             self.update = controlFunction
         end,
+
+        ---disables the realtimeControl input handling. A copy of the handling function is made, and can be reset by using :enable().
+        ---@param self any
         disable = function(self)
+            self.previousControls = self.update
             self.update = function() end
-        end
-            
+        end,
+
+        ---re-enables realtimeControl input handling, using whichever function was previously applied.
+        ---@param self any
+        enable = function(self)
+            self.update = self.previousControls
+        end,
+
+        ---clears previous control schemes so that enable() does not re-enable old control scheme. It's probably better to set() a new control scheme.
+        ---@param self any
+        clear = function(self)
+            previousControls = function() end
+        end,
+        previousControls = ""
+
+
     }
 }
 
@@ -183,7 +206,7 @@ love.gamepadpressed = function(joystick, button)
     Input.gamepadHandler(joystick, button)
 end
 
-if #Input.joysticks > 0 then 
+if #Input.joysticks > 0 then
     Input.joystick = Input.joysticks[1]
 end
 

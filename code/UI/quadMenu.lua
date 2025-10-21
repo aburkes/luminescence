@@ -96,12 +96,24 @@ return {
                 elseif key == Config.keys.right then menu:selectMenuItem(2)
                 elseif key == Config.keys.down then menu:selectMenuItem(3)
                 elseif key == Config.keys.left then menu:selectMenuItem(4)
-                elseif key == Config.keys.cancel then menu:destroy()
+                -- elseif key == Config.keys.cancel then
+                --     if type(cancel) == "function" then
+                --         cancel()
+                --     else
+                --         Input.realtimeControl:enable()
+                --     end
+                --     menu:destroy()
                 elseif key == Config.keys.confirm then
                     menu[menu.selected].action()
                     menu:destroy()
-                elseif key == Config.keys.cancel then 
-                    if type(cancel) == "function" then cancel() end
+                elseif key == Config.keys.cancel then
+                    Input.realtimeControl:enable()
+                    if type(cancel) == "function" then
+                        cancel()
+                    else
+                        Input.realtimeControl:enable()
+                    end
+                    menu:destroy()
                 end
             end
         )
@@ -111,13 +123,15 @@ return {
                 elseif button == Config.gamepad.right then menu:selectMenuItem(2)
                 elseif button == Config.gamepad.down then menu:selectMenuItem(3)
                 elseif button == Config.gamepad.left then menu:selectMenuItem(4)
-                elseif button == Config.gamepad.cancel then menu:destroy()
+                elseif button == Config.gamepad.cancel then 
+                    menu:destroy()
                 elseif button == Config.gamepad.confirm then
                     menu[menu.selected].action()
                     menu:destroy()
                 end
             end
         )
+        Input.realtimeControl:disable()
 
         menu.draw = function(self, dt)
             for k, v in ipairs(self) do
