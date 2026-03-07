@@ -106,7 +106,7 @@ return function(map)
     end
     cursor.moveDown = function(self)
         if not self.movement.moving then
-            if self.tile.x < map.width then
+            if self.tile.y < map.height then
                 self.movement.moving = true
                 self.tile.y = self.tile.y + 1
                 self.movement.destY = self.tile.y * map.tileheight + self.tile.offsetY
@@ -127,7 +127,7 @@ return function(map)
         self.tile.x = x
         self.tile.y = y
         self.position.x = x * map.tilewidth
-        self.position.y = x * map.tileheight
+        self.position.y = y * map.tileheight
     end
 
     --- It's probably better to use Input.cursorControl:moveTo()?

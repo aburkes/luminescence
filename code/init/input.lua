@@ -189,7 +189,7 @@ Input = {
         ---clears previous control schemes so that enable() does not re-enable old control scheme. It's probably better to set() a new control scheme.
         ---@param self any
         clear = function(self)
-            previousControls = function() end
+            local previousControls = function() end
         end,
         previousControls = ""
 

@@ -67,8 +67,8 @@ objectInit = function(self, object, map, image)
         object.stats = object.properties.stats
         object.team = object.properties.team
         -- give them maximums for hp and mp. For now they all get maximums.
-        object.stats.hpmax = object.stats.hp
-        object.stats.mpmax = object.stats.mp
+        if object.stats.hp == nil then object.stats.hp = object.stats.hpmax end
+        if object.stats.mp == nil then object.stats.mp = object.stats.mpmax end
         object.class = object.properties.class
     end
     object.move = {
