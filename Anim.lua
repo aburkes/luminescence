@@ -1,8 +1,26 @@
+---@class AnimFrameData
+---@field image love.Image  The loaded texture
+---@field frames love.Quad[] Array of quads sliced from the texture
+
+---@class AnimStrip
+---@field image love.Image
+---@field frames love.Quad[]
+
+---@class Animation
+---@field image love.Image       Source texture
+---@field frames love.Quad[]     Array of animation frame quads
+---@field frameDuration number   Seconds each frame is displayed
+---@field currentFrame integer   Index of the currently displayed frame
+---@field currentTime number     Elapsed time since the last frame change
+---@field update fun(self: Animation, dt: number) Advance animation by dt seconds
+---@field draw fun(self: Animation, x: number, y: number) Draw the current frame at (x, y)
+
 Anim = {
-    ---loads a texture atlas file in strip format and returns frame data
-    ---@param imagePath string path of file to load
-    ---@param frameWidth integer width of frame within texture atlas
-    ---@return table frames
+    ---Load a horizontal strip texture atlas and return frame data.
+    ---All frames share the full image height; the atlas is divided into equal-width columns.
+    ---@param imagePath string Path to the image file
+    ---@param frameWidth integer Width in pixels of each frame
+    ---@return AnimFrameData
     loadStrip = function(imagePath, frameWidth)
         local image = love.graphics.newImage(imagePath)
         local frames = {}
@@ -16,6 +34,12 @@ Anim = {
         return {image = image, frames = frames}
     end,
 
+    ---Load a multi-row strip texture atlas and return one AnimFrameData per row.
+    ---Each row is treated as a separate animation strip.
+    ---@param imagePath string Path to the image file
+    ---@param frameWidth integer Width in pixels of each frame
+    ---@param frameHeight integer Height in pixels of each row
+    ---@return AnimFrameData[]
     loadMultistrip = function (imagePath, frameWidth, frameHeight)
         local image = love.graphics.newImage(imagePath)
         local frames = {}
@@ -32,11 +56,12 @@ Anim = {
         return frames
     end,
 
-    ---loads a texture atlas file in x-y (matrix) format and returns frame data
-    ---@param imagePath string path of file to load 
-    ---@param frameWidth integer width of frame within texture atlas
-    ---@param frameHeight integer height of frame within texture atlas
-    ---@return table frames
+    ---Load a matrix (grid) texture atlas and return frame data.
+    ---Frames are ordered left-to-right, top-to-bottom.
+    ---@param imagePath string Path to the image file
+    ---@param frameWidth integer Width in pixels of each frame
+    ---@param frameHeight integer Height in pixels of each frame
+    ---@return AnimFrameData
     loadMatrix = function(imagePath, frameWidth, frameHeight)
         local image = love.graphics.newImage(imagePath)
         local frames = {}
@@ -56,6 +81,12 @@ Anim = {
     end,
     
     
+    ---Create a new looping animation from frame data.
+    ---@param frameData AnimFrameData Frame data returned by a load function
+    ---@param x number Initial x position (unused; pass to draw instead)
+    ---@param y number Initial y position (unused; pass to draw instead)
+    ---@param frameDuration number? Seconds per frame (default 1)
+    ---@return Animation
     new = function(frameData, x, y, frameDuration)
         local animation = {
             image = frameData.image,

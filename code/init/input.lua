@@ -1,29 +1,57 @@
+---@class Handlers
+---@field key fun(key: string)?         Called on keypressed events
+---@field gamepad fun(joystick: love.Joystick, button: string)? Called on gamepadpressed events
+---@field realtime fun(dt: number)?     Called every update frame
+
+---@class Input
+---@field stack Handlers[]              Stack of active handler sets
+---@field joysticks love.Joystick[]     Connected joysticks
+---@field joystick love.Joystick?       The primary active joystick
+---@field handlers table<string, Handlers> Named handler presets
 Input = {
     stack = {},
     joysticks = love.joystick.getJoysticks(),
 
+    ---Push a handler set onto the input stack, making it the active handler.
+    ---@param self Input
+    ---@param handlers Handlers
     push = function(self, handlers)
         table.insert(self.stack, handlers)
     end,
 
+    ---Pop the top handler set off the stack, restoring the previous one.
+    ---@param self Input
     pop = function(self)
         table.remove(self.stack)
     end,
 
+    ---Return the currently active handler set.
+    ---@param self Input
+    ---@return Handlers?
     top = function(self)
         return self.stack[#self.stack]
     end,
 
+    ---Forward a key press to the active handler's key function.
+    ---@param self Input
+    ---@param key string The key identifier (e.g. "return", "space")
     keypressed = function(self, key)
         local t = self:top()
         if t and t.key then t.key(key) end
     end,
 
+    ---Forward a gamepad button press to the active handler's gamepad function.
+    ---@param self Input
+    ---@param joystick love.Joystick The joystick that fired the event
+    ---@param button string The button identifier
     gamepadpressed = function(self, joystick, button)
         local t = self:top()
         if t and t.gamepad then t.gamepad(joystick, button) end
     end,
 
+    ---Call the active handler's realtime function once per frame.
+    ---@param self Input
+    ---@param dt number Seconds elapsed since the last frame
     update = function(self, dt)
         local t = self:top()
         if t and t.realtime then t.realtime(dt) end

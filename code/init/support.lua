@@ -100,11 +100,10 @@ return function(map)
         -- end
         -- -- is there an object blocking the way?
         local objects = self:objectsAt(x, y)
-        for _, object in ipairs(self:objectsAt(x,y)) do
-            if object.team == "ally" or not object.visible then
-                isReachable = true
-            else
+        for _, object in ipairs(objects) do
+            if object.team ~= "ally" and object.visible then
                 isReachable = false
+				break
             end
         end
         -- -- do we have the energy to get there?
