@@ -130,14 +130,13 @@ return function(map)
         self.position.y = y * map.tileheight
     end
 
-    --- It's probably better to use Input.cursorControl:moveTo()?
     cursor.moveTo = function(self, x, y)
         self.tile.x = x
         self.tile.y = y
         self.movement.destX = x * map.tilewidth
         self.movement.destY = y * map.tileheight
+        Input:push({}) -- block input during animation
         self.update = function(self, dt)
-            Input.cursorControl:disable()
             if self.position.x < self.movement.destX then
                 self.position.x = self.position.x + (self.speed * dt)
                 if self.position.x > self.movement.destX then self.position.x = self.movement.destX end
@@ -152,13 +151,13 @@ return function(map)
                 if self.position.y > self.movement.destY then self.position.y = self.movement.destY end
             elseif self.position.x == self.movement.destX and self.position.y == self.movement.destY then
                 self.update = function() end
-                Input.cursorControl:enable()
+                Input:pop()
             end
         end
     end
 
     cursor.activate = function(self)
-        Input.cursorControl:enable()
+        Input:push(Input.handlers.cursor)
     end
 
     ---gets the object at the cursor's current position and displays it's stats

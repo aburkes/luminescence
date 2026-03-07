@@ -422,47 +422,24 @@ objectInit = function(self, object, map, image)
 
     object.userControl = function(self, type)
         if type == "battle" then
-            Input.cursorControl:disable()
-            -- Input:setKeyHandler(function(key)
-            --     if key == Config.keys.down then
-            --         self.move:battleMove("down")
-            --     elseif  key == Config.keys.up then
-            --         self.move:battleMove("up")
-            --     elseif key == Config.keys.left then
-            --         self.move:battleMove("left")
-            --     elseif key == Config.keys.right then
-            --         self.move:battleMove("right")
-            --     end
-            -- end)
-            Input.realtimeControl:set(function(dt)
-                if love.keyboard.isDown(Config.keys.down) then
-                    self.move:battleMove("down")
-                elseif love.keyboard.isDown(Config.keys.up) then
-                    self.move:battleMove("up")
-                elseif love.keyboard.isDown(Config.keys.left) then
-                    self.move:battleMove("left")
-                elseif love.keyboard.isDown(Config.keys.right) then
-                    self.move:battleMove("right")
-                end
-                if Input.joystick then
-                    local gd = function(button)
-                        return Input.joystick:isGamepadDown(button)
+            Input:push({
+                realtime = function(_dt)
+                    if love.keyboard.isDown(Config.keys.down) then self.move:battleMove("down")
+                    elseif love.keyboard.isDown(Config.keys.up) then self.move:battleMove("up")
+                    elseif love.keyboard.isDown(Config.keys.left) then self.move:battleMove("left")
+                    elseif love.keyboard.isDown(Config.keys.right) then self.move:battleMove("right")
                     end
-                    if gd(Config.gamepad.up) then
-                        self.move:battleMove("up")
-                    elseif gd(Config.gamepad.down) then
-                        self.move:battleMove("down")
-                    elseif gd(Config.gamepad.left) then
-                        self.move:battleMove("left")
-                    elseif gd(Config.gamepad.right) then
-                        self.move:battleMove("right")
+                    if Input.joystick then
+                        local gd = function(b) return Input.joystick:isGamepadDown(b) end
+                        if gd(Config.gamepad.up) then self.move:battleMove("up")
+                        elseif gd(Config.gamepad.down) then self.move:battleMove("down")
+                        elseif gd(Config.gamepad.left) then self.move:battleMove("left")
+                        elseif gd(Config.gamepad.right) then self.move:battleMove("right")
+                        end
                     end
                 end
-            end)
-
+            })
         end
-        -- otherwise....
-
     end
         
 

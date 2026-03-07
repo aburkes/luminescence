@@ -52,7 +52,6 @@ return {
             currentTime = 0,
             animationTime = 0.5,
             type = "quadMenu",
-            oldInputHandler = love.keypressed
         }
         if type(action1) == "function" then menu[1].action = action1
         else menu[1].action = function() print("There were no actions specified for Action 1") end
@@ -66,8 +65,6 @@ return {
         if type(action4) == "function" then menu[4].action = action4
         else menu[4].action = function() print("There were no actions specified for Action 4") end
         end
-        Input.lock = menu.lock
-
         local quads = Anim.loadMultistrip(image, itemWidth, itemHeight)
 
         for key, frames in ipairs(menu) do
@@ -77,61 +74,33 @@ return {
 
         end
 
-        -- ---@diagnostic disable-next-line: duplicate-set-field
-        -- love.keypressed = function(key)
-        --     if key == Config.keys.up then menu:selectMenuItem(1)
-        --     elseif key == Config.keys.right then menu:selectMenuItem(2)
-        --     elseif key == Config.keys.down then menu:selectMenuItem(3)
-        --     elseif key == Config.keys.left then menu:selectMenuItem(4)
-        --     elseif key == Config.keys.cancel then menu:destroy()
-        --     elseif key == Config.keys.confirm then
-        --         menu[menu.selected].action()
-        --         menu:destroy()
-        --     elseif key == Config.keys.cancel then cancel()
-        --     end
-        -- end
-        Input:setKeyHandler(
-            function(key)
+        Input:push({
+            key = function(key)
                 if key == Config.keys.up then menu:selectMenuItem(1)
                 elseif key == Config.keys.right then menu:selectMenuItem(2)
                 elseif key == Config.keys.down then menu:selectMenuItem(3)
                 elseif key == Config.keys.left then menu:selectMenuItem(4)
-                -- elseif key == Config.keys.cancel then
-                --     if type(cancel) == "function" then
-                --         cancel()
-                --     else
-                --         Input.realtimeControl:enable()
-                --     end
-                --     menu:destroy()
                 elseif key == Config.keys.confirm then
                     menu[menu.selected].action()
                     menu:destroy()
                 elseif key == Config.keys.cancel then
-                    Input.realtimeControl:enable()
-                    if type(cancel) == "function" then
-                        cancel()
-                    else
-                        Input.realtimeControl:enable()
-                    end
+                    if type(cancel) == "function" then cancel() end
                     menu:destroy()
                 end
-            end
-        )
-        Input:setGamepadHandler(
-            function(joystick, button)
+            end,
+            gamepad = function(_joystick, button)
                 if button == Config.gamepad.up then menu:selectMenuItem(1)
                 elseif button == Config.gamepad.right then menu:selectMenuItem(2)
                 elseif button == Config.gamepad.down then menu:selectMenuItem(3)
                 elseif button == Config.gamepad.left then menu:selectMenuItem(4)
-                elseif button == Config.gamepad.cancel then 
-                    menu:destroy()
                 elseif button == Config.gamepad.confirm then
                     menu[menu.selected].action()
                     menu:destroy()
+                elseif button == Config.gamepad.cancel then
+                    menu:destroy()
                 end
             end
-        )
-        Input.realtimeControl:disable()
+        })
 
         menu.draw = function(self, dt)
             for k, v in ipairs(self) do
@@ -167,15 +136,13 @@ return {
         --     Input.lock = ""
         -- end
         menu.destroy = function(self)
-            -- love.keypressed = self.oldInputHandler
-            Input:release()
+            Input:pop()
             UI:remove(self)
         end
 
         -- don't use this; if it's still in the UI carrier then it will prevent the UI updater from allowing free control.
         menu.disable = function(self)
-            -- love.keypressed = self.oldInputHandler
-            Input:release()
+            Input:pop()
             if Config.menu.resets == true then
                 self:selectMenuItem(1)
             end

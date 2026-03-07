@@ -40,7 +40,7 @@ Battle.nextTurn = function(self)
 end
 
 Battle.initiateTurn = function(self, unit)
-    Input.cursorControl:moveTo(1,1)
+    Cursor:moveTo(1,1)
 end
 
 --Does this need to be part of the Battle object? Would there be a better place to put this?

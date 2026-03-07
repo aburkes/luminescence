@@ -34,11 +34,11 @@ return {
         object.window.width = textWidth + object.window.border * 2
         object.window.height = textHeight + object.window.border * 2
 
-        Input.cursorControl:disable()
-        Input:setKeyHandler(function(key)
-            if key == Config.keys.cancel then object:destroy() end
-        end
-        )
+        Input:push({
+            key = function(key)
+                if key == Config.keys.cancel then object:destroy() end
+            end
+        })
 
 
         object.draw = function(self)
@@ -52,11 +52,10 @@ return {
         object.update = function(self, dt) end --doesn't actually need to update itself. Not yet, anyways.
 
         object.destroy = function(self)
-            Input:release()
+            Input:pop()
             UI:remove(self)
             if type(self.thenDo) == "function" then
                 self.thenDo()
-            else Input.cursorControl:enable()
             end
         end
 

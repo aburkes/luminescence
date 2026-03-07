@@ -6,7 +6,6 @@ return {
     ---@param thenDo function function to be called after completing the dialogBox.
     ---@return dialogBox
     new = function(text, thenDo)
-        Input.directControl:disable()
         local object = {
             type = "dialogBox",
             status = "writing",
@@ -66,10 +65,8 @@ return {
         }
         object.text = love.graphics.newText(UI.fonts.dialog, "") -- dumb way to prevent this from trying to get an uninitialized texture.
 
-        object.oldInputHandler = love.keypressed
-        ---@diagnostic disable-next-line: duplicate-set-field
-        Input:setKeyHandler(
-            function(key)
+        Input:push({
+            key = function(key)
                 if key == Config.keys.confirm then
                     if object.status == "printing" then
                         object.script.character = #object.script.text
@@ -79,10 +76,8 @@ return {
                         object.offset = 999999 -- triggers the end of the scrolling animation
                     end
                 end
-            end
-        )
-        Input:setGamepadHandler(
-            function(joystick, button)
+            end,
+            gamepad = function(_joystick, button)
                 if button == Config.gamepad.confirm then
                     if object.status == "printing" then
                         object.script.character = #object.script.text
@@ -91,7 +86,7 @@ return {
                     end
                 end
             end
-        )
+        })
 
 
         object.draw = function(self)
@@ -161,9 +156,8 @@ return {
 
         end
         object.destroy = function(self)
-            Input:release()
+            Input:pop()
             UI:remove(self)
-            Input.lock = ""
             if #self.script.lines > 1 then
                 table.remove(self.script.lines,1)
                 UI:add(UI.dialogBox.new(self.script.lines, self.thenDo))

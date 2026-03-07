@@ -1,209 +1,104 @@
 Input = {
-
-    keyHandler = function(key, scan, isRepeat) end,
-    gamepadHandler = function(joystick, button) end,
+    stack = {},
     joysticks = love.joystick.getJoysticks(),
 
-    --default keyboard handler function
-    defaultKeys = function(key, scan, isRepeat)
-        if key == Config.keys.confirm then map.objects[Index]:action()
-		elseif key == "1" then Index = 1
-		elseif key == "2" then Index = 2
-		elseif key == "3" then Index = 3
-		elseif key == "4" then Index = 4
-        elseif key == "5" then Index = 5
-        elseif key == "s" then Init.save.saveData(Party)
-		elseif key == Config.keys.menu then UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
-		end
+    push = function(self, handlers)
+        table.insert(self.stack, handlers)
     end,
 
-    ---Replaces the keyboard event handler with an arbitrary replacement
-    ---Replacement argument should have at least one argument (for `key`) or it won't do anything.
-    ---@param self any
-    ---@param newHandler function your replacement keyboard handler function. Make sure it includes at least one argument.
-    setKeyHandler = function(self, newHandler)
-        self.keyHandler = newHandler
+    pop = function(self)
+        table.remove(self.stack)
     end,
 
-    ---resets the keyboard controls to default.
-    ---@return nil
-    setDefaultKeys = function(self)
-        self.keyHandler = self.defaultKeys
+    top = function(self)
+        return self.stack[#self.stack]
     end,
 
-    --default gamepad handler function
-    defaultGamepad = function(joystick, button)
-        if button == Config.gamepad.confirm then
-            map.objects[Index]:action()
-        elseif button == Config.gamepad.menu then
-            UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, function() end, nil, nil, nil, nil))
-
-        end
-    end,
-    ---Replaces the gamepad event handler with an arbitrary replacement.
-    ---replacement arguments should have two arguments - `joystick` and `button`.
-    ---@param newHandler function replacement handler function
-    setGamepadHandler = function(self, newHandler)
-        self.gamepadHandler = newHandler
-    end,
-    ---resets both keyboard and gamepad controls to defaults.
-    ---@return nil
-    release = function(self)
-        self.keyHandler = self.defaultKeys
-        self.gamepadHandler = self.defaultGamepad
+    keypressed = function(self, key)
+        local t = self:top()
+        if t and t.key then t.key(key) end
     end,
 
-    directControl = {
-		enabled = false,
-		enable = function(self)
-			self.enabled = true
-			Input:release()
-		end,
-		disable = function(self)
-			self.enabled = false
-		end,
-        update = function(self)
-            if self.enabled then
-                local object = map.objects[Index]
-                if love.keyboard.isDown(Config.keys.left) then
-                    object.move:blockable("left")
-                elseif love.keyboard.isDown(Config.keys.right) then
-                    object.move:blockable("right")
-                elseif love.keyboard.isDown(Config.keys.up) then
-                    object.move:blockable("up")
-                elseif love.keyboard.isDown(Config.keys.down) then
-                    object.move:blockable("down")
-                end
-                if Input.joystick then
-                    local gd = function(button)
-                        return Input.joystick:isGamepadDown(button)
-                    end
-                    if gd(Config.gamepad.up) then
-                        object.move:blockable("up")
-                    elseif gd(Config.gamepad.down) then
-                        object.move:blockable("down")
-                    elseif gd(Config.gamepad.left) then
-                        object.move:blockable("left")
-                    elseif gd(Config.gamepad.right) then
-                        object.move:blockable("right")
-                    end
-                end
-            end
-        end
-	},
-    cursorControl = {
-        enabled = false,
-        enable = function(self)
-            self.enabled = true
-            Input.directControl:disable()
-            Input.realtimeControl:set(function(self)
-                if love.keyboard.isDown(Config.keys.left) then
-                    Cursor:moveLeft()
-                elseif love.keyboard.isDown(Config.keys.right) then
-                    Cursor:moveRight()
-                elseif love.keyboard.isDown(Config.keys.up) then
-                    Cursor:moveUp()
-                elseif love.keyboard.isDown(Config.keys.down) then
-                    Cursor:moveDown()
-                elseif love.keyboard.isDown(Config.keys.confirm) then
-                    Cursor:showUnitInfo()
-                end
-                if Input.joystick then
-                    local gd = function(button)
-                        return Input.joystick:isGamepadDown(button)
-                    end
-                    if gd(Config.gamepad.up) then
-                        Cursor:moveUp()
-                    elseif gd(Config.gamepad.down) then
-                        Cursor:moveDown()
-                    elseif gd(Config.gamepad.left) then
-                        Cursor:moveLeft()
-                    elseif gd(Config.gamepad.right) then
-                        Cursor:moveRight()
-                    end
-                end
-            end)
-        end,
-        disable = function(self)
-            self.enabled = false
-            Input.realtimeControl:disable()
-        end,
-        update = function(self)
-            if self.enabled then
-                if love.keyboard.isDown(Config.keys.left) then
-                    Cursor:moveLeft()
-                elseif love.keyboard.isDown(Config.keys.right) then
-                    Cursor:moveRight()
-                elseif love.keyboard.isDown(Config.keys.up) then
-                    Cursor:moveUp()
-                elseif love.keyboard.isDown(Config.keys.down) then
-                    Cursor:moveDown()
-                end
-                if Input.joystick then
-                    local gd = function(button)
-                        return Input.joystick:isGamepadDown(button)
-                    end
-                    if gd(Config.gamepad.up) then
-                        Cursor:moveUp()
-                    elseif gd(Config.gamepad.down) then
-                        Cursor:moveDown()
-                    elseif gd(Config.gamepad.left) then
-                        Cursor:moveLeft()
-                    elseif gd(Config.gamepad.right) then
-                        Cursor:moveRight()
-                    end
-                end
+    gamepadpressed = function(self, joystick, button)
+        local t = self:top()
+        if t and t.gamepad then t.gamepad(joystick, button) end
+    end,
+
+    update = function(self, dt)
+        local t = self:top()
+        if t and t.realtime then t.realtime(dt) end
+    end,
+}
+
+Input.handlers = {
+    default = {
+        key = function(key)
+            if key == Config.keys.confirm then map.objects[Index]:action()
+            elseif key == "1" then Index = 1
+            elseif key == "2" then Index = 2
+            elseif key == "3" then Index = 3
+            elseif key == "4" then Index = 4
+            elseif key == "5" then Index = 5
+            elseif key == "s" then Init.save.saveData(Party)
+            elseif key == Config.keys.menu then
+                UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
             end
         end,
-        moveTo = function(self, x, y)
-            Cursor:moveTo(x, y)
-            -- I realized it made more sense to just make the cursor do it's thing than it did to reimplement it. Consider this to be depreciated!
+        gamepad = function(_joystick, button)
+            if button == Config.gamepad.confirm then map.objects[Index]:action()
+            elseif button == Config.gamepad.menu then
+                UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
+            end
+        end,
+        realtime = function(_dt)
+            local object = map.objects[Index]
+            if love.keyboard.isDown(Config.keys.left) then object.move:blockable("left")
+            elseif love.keyboard.isDown(Config.keys.right) then object.move:blockable("right")
+            elseif love.keyboard.isDown(Config.keys.up) then object.move:blockable("up")
+            elseif love.keyboard.isDown(Config.keys.down) then object.move:blockable("down")
+            end
+            if Input.joystick then
+                local gd = function(b) return Input.joystick:isGamepadDown(b) end
+                if gd(Config.gamepad.up) then object.move:blockable("up")
+                elseif gd(Config.gamepad.down) then object.move:blockable("down")
+                elseif gd(Config.gamepad.left) then object.move:blockable("left")
+                elseif gd(Config.gamepad.right) then object.move:blockable("right")
+                end
+            end
         end
     },
-    realtimeControl = {
-        --- handles input
-        update = function(dt)
-            -- something happens here
+    cursor = {
+        key = function(key)
+            if key == Config.keys.confirm then Cursor:showUnitInfo()
+            elseif key == Config.keys.menu then
+                UI:add(UI.quadMenu.new("res/sprite/actions.png", 72, 48, nil, nil, nil, nil))
+            end
         end,
-
-        ---sets a function to handle input
-        ---@param self any
-        ---@param controlFunction function to run on screen update
-        set = function(self, controlFunction)
-            self.update = controlFunction
-        end,
-
-        ---disables the realtimeControl input handling. A copy of the handling function is made, and can be reset by using :enable().
-        ---@param self any
-        disable = function(self)
-            self.previousControls = self.update
-            self.update = function() end
-        end,
-
-        ---re-enables realtimeControl input handling, using whichever function was previously applied.
-        ---@param self any
-        enable = function(self)
-            self.update = self.previousControls
-        end,
-
-        ---clears previous control schemes so that enable() does not re-enable old control scheme. It's probably better to set() a new control scheme.
-        ---@param self any
-        clear = function(self)
-            local previousControls = function() end
-        end,
-        previousControls = ""
-
-
+        gamepad = function(joystick, button) end,
+        realtime = function(dt)
+            if love.keyboard.isDown(Config.keys.left) then Cursor:moveLeft()
+            elseif love.keyboard.isDown(Config.keys.right) then Cursor:moveRight()
+            elseif love.keyboard.isDown(Config.keys.up) then Cursor:moveUp()
+            elseif love.keyboard.isDown(Config.keys.down) then Cursor:moveDown()
+            end
+            if Input.joystick then
+                local gd = function(b) return Input.joystick:isGamepadDown(b) end
+                if gd(Config.gamepad.up) then Cursor:moveUp()
+                elseif gd(Config.gamepad.down) then Cursor:moveDown()
+                elseif gd(Config.gamepad.left) then Cursor:moveLeft()
+                elseif gd(Config.gamepad.right) then Cursor:moveRight()
+                end
+            end
+        end
     }
 }
 
-
 love.keypressed = function(key, scan, isRepeat)
-    Input.keyHandler(key, scan, isRepeat)
+    Input:keypressed(key)
 end
 
 love.gamepadpressed = function(joystick, button)
-    Input.gamepadHandler(joystick, button)
+    Input:gamepadpressed(joystick, button)
 end
 
 if #Input.joysticks > 0 then
@@ -216,9 +111,5 @@ end
 
 love.joystickremoved = function()
     Input.joysticks = love.joystick.getJoysticks()
-    if Input.joysticks then
-        Input.joystick = Input.joysticks[1]
-    else
-        Input.joystick = nil
-    end
+    Input.joystick = Input.joysticks[1] or nil
 end

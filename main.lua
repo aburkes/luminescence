@@ -20,20 +20,17 @@ function love.load()
 
 	-- map = Init.loadMap("res/map/outside-test-map.lua")
 	-- map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
-	Input.directControl:disable()
 
 	local alan = Party:addMember(DB.characters.Alan)
 	Party:addMember(DB.characters.Alan)
 	Party:addMember(DB.characters.Sami)
-	
+
 	map = Init.loadMap("res/map/Battle Test 1/Battle Test 1.lua")
 
-	Input:release()
-	Input.cursorControl:enable()
+	Input:push(Input.handlers.cursor)
 
 	map.layers.highlight.highlighted = map.objects[2]:getMovements(map)
 	-- map.objects[2]:userControl("battle")
-	Input.cursorControl:enable()
 
 
 end
@@ -48,9 +45,7 @@ function love.update(dt)
 		if v.move then v.move:update(dt) end
 		-- v.move:update(dt)
 	end
-	Input.directControl:update()
-	-- Input.cursorControl:update()
-	Input.realtimeControl:update()
+	Input:update(dt)
 	map:update(dt)
 	UI:update(dt)
 
