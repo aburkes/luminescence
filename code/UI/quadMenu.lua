@@ -97,6 +97,9 @@ return {
                     menu[menu.selected].action()
                     menu:destroy()
                 elseif button == Config.gamepad.cancel then
+                    if type(cancel) == "function" then
+                        cancel()
+                    end
                     menu:destroy()
                 end
             end
@@ -139,22 +142,6 @@ return {
             Input:pop()
             UI:remove(self)
         end
-
-        -- don't use this; if it's still in the UI carrier then it will prevent the UI updater from allowing free control.
-        menu.disable = function(self)
-            Input:pop()
-            if Config.menu.resets == true then
-                self:selectMenuItem(1)
-            end
-        end
-
-        menu.enable = function(self)
-            if Config.menu.resets == true then
-                self:selectMenuItem(1)
-            end
-        end
-
-
 
         return menu
     end

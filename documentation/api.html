@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luminescence Engine — API Overview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #1a1b1e;
+      --surface:   #25262b;
+      --border:    #373a40;
+      --accent:    #e8c97a;
+      --accent2:   #7ac8e8;
+      --text:      #c9cdd4;
+      --muted:     #777c85;
+      --code-bg:   #2c2e33;
+      --danger:    #e87a7a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    nav {
+      width: 230px;
+      min-width: 230px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    nav .logo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      padding: 0 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.03em;
+    }
+
+    nav .logo span { color: var(--muted); font-weight: 400; font-size: 0.8rem; display: block; }
+
+    nav a {
+      display: block;
+      padding: 0.3rem 1.25rem;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      border-left: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    nav a:hover { color: var(--text); border-left-color: var(--border); }
+
+    nav .section-head {
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.9rem 1.25rem 0.2rem;
+    }
+
+    /* ── Main content ── */
+    main {
+      flex: 1;
+      padding: 2.5rem 3rem 4rem;
+      max-width: 900px;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 2rem;
+      color: var(--accent);
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    header .badges { margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 99px;
+    }
+
+    /* ── Sections ── */
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.35rem;
+      color: var(--accent2);
+      margin-bottom: 0.25rem;
+    }
+
+    .module-path {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin: 1.5rem 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    p { margin-bottom: 0.75rem; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead tr { background: var(--surface); }
+
+    th {
+      text-align: left;
+      padding: 0.55rem 0.85rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 0.55rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.025); }
+
+    /* ── Code ── */
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.85em;
+      background: var(--code-bg);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      color: var(--accent2);
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.83rem;
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+      font-size: inherit;
+    }
+
+    /* ── Method signatures ── */
+    .sig {
+      display: block;
+      background: var(--code-bg);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 4px 4px 0;
+      padding: 0.55rem 0.9rem;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.88rem;
+      color: var(--accent2);
+      margin: 1rem 0 0.4rem;
+    }
+
+    .sig .ret { color: var(--accent); }
+    .sig .kw  { color: #b07ae8; }
+
+    .method-desc {
+      color: var(--muted);
+      font-size: 0.88rem;
+      margin-bottom: 1rem;
+      padding-left: 0.5rem;
+    }
+
+    /* ── Type tags ── */
+    .type {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.8em;
+      color: #7ae8b2;
+    }
+
+    .optional { color: var(--muted); font-style: italic; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ SIDEBAR ════════════════════════════════ -->
+<nav>
+  <div class="logo">Luminescence<span>API Overview</span></div>
+
+  <div class="section-head">Core</div>
+  <a href="#anim">Anim</a>
+  <a href="#battle">Battle</a>
+  <a href="#config">Config</a>
+  <a href="#input">Input</a>
+
+  <div class="section-head">UI</div>
+  <a href="#ui">UI</a>
+  <a href="#dialogbox">UI.dialogBox</a>
+  <a href="#quadmenu">UI.quadMenu</a>
+  <a href="#battlestats">UI.battleStats</a>
+
+  <div class="section-head">World</div>
+  <a href="#init">Init</a>
+  <a href="#map">Map</a>
+  <a href="#cursor">Cursor</a>
+  <a href="#highlight">Highlight</a>
+  <a href="#objects">Map Objects</a>
+
+  <div class="section-head">Characters</div>
+  <a href="#party">Party</a>
+  <a href="#combatant">Combatant</a>
+  <a href="#stats">Stats</a>
+
+  <div class="section-head">Data</div>
+  <a href="#db">DB</a>
+  <a href="#gamesave">Game Save</a>
+  <a href="#dbformat">Database Format</a>
+</nav>
+
+<!-- ════════════════════════════════ MAIN ════════════════════════════════ -->
+<main>
+
+  <header>
+    <h1>Luminescence Engine</h1>
+    <p>API reference for the LÖVE 11.5 tactical RPG engine, styled after Sega's <em>Shining Force</em> series.</p>
+    <div class="badges">
+      <span class="badge">LÖVE 11.5</span>
+      <span class="badge">Lua 5.1</span>
+      <span class="badge">GNU GPLv3</span>
+      <span class="badge">Preliminary</span>
+    </div>
+  </header>
+
+  <!-- ── ANIM ── -->
+  <section id="anim">
+    <h2>Anim</h2>
+    <span class="module-path">Anim.lua — global table</span>
+    <p>Loads texture atlases and creates looping frame-based animations.</p>
+
+    <h3>Functions</h3>
+
+    <span class="sig"><span class="kw">Anim</span>.loadStrip(<span class="type">imagePath: string, frameWidth: integer</span>) <span class="ret">→ AnimFrameData</span></span>
+    <p class="method-desc">Loads a single-row horizontal strip atlas, dividing it into equal-width columns.</p>
+
+    <span class="sig"><span class="kw">Anim</span>.loadMultistrip(<span class="type">imagePath: string, frameWidth: integer, frameHeight: integer</span>) <span class="ret">→ AnimFrameData[]</span></span>
+    <p class="method-desc">Loads a multi-row strip atlas; each row is returned as a separate <code>AnimFrameData</code>.</p>
+
+    <span class="sig"><span class="kw">Anim</span>.loadMatrix(<span class="type">imagePath: string, frameWidth: integer, frameHeight: integer</span>) <span class="ret">→ AnimFrameData</span></span>
+    <p class="method-desc">Loads a grid atlas with frames ordered left-to-right, top-to-bottom.</p>
+
+    <span class="sig"><span class="kw">Anim</span>.new(<span class="type">frameData, x, y, frameDuration?</span>) <span class="ret">→ Animation</span></span>
+    <p class="method-desc">Creates a looping animation. <code>frameDuration</code> defaults to <code>1</code>.</p>
+
+    <h3>Animation Object</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>image</code></td><td><span class="type">love.Image</span></td><td>Source texture</td></tr>
+          <tr><td><code>frames</code></td><td><span class="type">love.Quad[]</span></td><td>Animation frame quads</td></tr>
+          <tr><td><code>frameDuration</code></td><td><span class="type">number</span></td><td>Seconds per frame</td></tr>
+          <tr><td><code>currentFrame</code></td><td><span class="type">integer</span></td><td>Active frame index</td></tr>
+          <tr><td><code>currentTime</code></td><td><span class="type">number</span></td><td>Elapsed time since last frame change</td></tr>
+          <tr><td><code>:update(dt)</code></td><td><span class="type">method</span></td><td>Advance animation by <code>dt</code> seconds</td></tr>
+          <tr><td><code>:draw(x, y)</code></td><td><span class="type">method</span></td><td>Render current frame at pixel position</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── BATTLE ── -->
+  <section id="battle">
+    <h2>Battle</h2>
+    <span class="module-path">Battle.lua — global table</span>
+    <p>Manages the turn-based battle system, including turn order, movement, and combat resolution.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Battle.active</code></td><td><span class="type">boolean</span></td><td>Whether a battle is currently running</td></tr>
+          <tr><td><code>Battle.combattants</code></td><td><span class="type">table</span></td><td>Array of combatants in the current battle</td></tr>
+          <tr><td><code>Battle.turn</code></td><td><span class="type">table</span></td><td>Fields: <code>unit</code>, <code>startingPosition</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">Battle</span>:initiate(<span class="type">combattants: table</span>)</span>
+    <p class="method-desc">Initialises a battle. Sets each unit's <code>moveTimer</code> to their <code>stats.agility</code>.</p>
+
+    <span class="sig"><span class="kw">Battle</span>:nextTurn() <span class="ret">→ combatant</span></span>
+    <p class="method-desc">Selects the next unit to act based on the lowest <code>moveTimer</code>.</p>
+
+    <span class="sig"><span class="kw">Battle</span>:initiateTurn(<span class="type">unit</span>)</span>
+    <p class="method-desc">Called at the start of a unit's turn. Moves the cursor to tile (1, 1).</p>
+
+    <span class="sig"><span class="kw">Battle</span>:attack(<span class="type">attacker, defender</span>)</span>
+    <p class="method-desc">Resolves an attack. Damage = <code>attacker.stats.attack − defender.stats.defense</code>. Removes defender if HP reaches 0 and shows a dialog.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── CONFIG ── -->
+  <section id="config">
+    <h2>Config</h2>
+    <span class="module-path">conf.lua — global table</span>
+    <p>Global configuration for key bindings, gamepad buttons, fonts, and menu behaviour.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Config.keys</code></td><td><span class="type">table</span></td><td>Keyboard mappings: <code>left right up down confirm cancel menu</code></td></tr>
+          <tr><td><code>Config.gamepad</code></td><td><span class="type">table</span></td><td>Gamepad mappings: same keys as above</td></tr>
+          <tr><td><code>Config.fonts</code></td><td><span class="type">table</span></td><td>Font presets (<code>dialog</code>, <code>small</code>) with <code>filename</code>, <code>size</code>, <code>hinting</code>, <code>dpiscale</code></td></tr>
+          <tr><td><code>Config.menu.resets</code></td><td><span class="type">boolean</span></td><td>Whether the menu resets selection on open (default <code>true</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>DebuggingLevel</h3>
+    <span class="module-path">main.lua — global table</span>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>DebuggingLevel.FPS</code></td><td><span class="type">boolean</span></td><td>Show FPS counter when <code>true</code></td></tr>
+          <tr><td><code>DebuggingLevel.plainTextSaves</code></td><td><span class="type">boolean</span></td><td>Skip serialisation encoding when <code>true</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── INPUT ── -->
+  <section id="input">
+    <h2>Input</h2>
+    <span class="module-path">code/init/input.lua — global table</span>
+    <p>Stack-based input handler for keyboard and gamepad events.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Input.stack</code></td><td><span class="type">table</span></td><td>Stack of active handler sets</td></tr>
+          <tr><td><code>Input.joysticks</code></td><td><span class="type">love.Joystick[]</span></td><td>Connected joysticks</td></tr>
+          <tr><td><code>Input.joystick</code></td><td><span class="type">love.Joystick | nil</span></td><td>Primary active joystick</td></tr>
+          <tr><td><code>Input.handlers</code></td><td><span class="type">table</span></td><td>Named presets: <code>default</code>, <code>cursor</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">Input</span>:push(<span class="type">handlers</span>)</span>
+    <p class="method-desc">Push a handler set. The set may define <code>key(key)</code>, <code>gamepad(joystick, button)</code>, and <code>realtime(dt)</code>.</p>
+
+    <span class="sig"><span class="kw">Input</span>:pop()</span>
+    <p class="method-desc">Pop the top handler set.</p>
+
+    <span class="sig"><span class="kw">Input</span>:top() <span class="ret">→ Handlers | nil</span></span>
+    <p class="method-desc">Return the currently active handler set.</p>
+
+    <span class="sig"><span class="kw">Input</span>:keypressed(<span class="type">key: string</span>)</span>
+    <p class="method-desc">Forward a key press to the active handler. Call from <code>love.keypressed</code>.</p>
+
+    <span class="sig"><span class="kw">Input</span>:gamepadpressed(<span class="type">joystick, button</span>)</span>
+    <p class="method-desc">Forward a gamepad press. Call from <code>love.gamepadpressed</code>.</p>
+
+    <span class="sig"><span class="kw">Input</span>:update(<span class="type">dt: number</span>)</span>
+    <p class="method-desc">Invoke the active handler's <code>realtime</code> function. Call from <code>love.update</code>.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── UI ── -->
+  <section id="ui">
+    <h2>UI</h2>
+    <span class="module-path">code/UI/ui.lua — global table</span>
+    <p>Manages the collection of active UI elements, routing updates and draw calls to each.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>UI.carrier</code></td><td><span class="type">table</span></td><td>Active UI element list</td></tr>
+          <tr><td><code>UI.fonts</code></td><td><span class="type">table</span></td><td>Loaded fonts keyed by <code>dialog</code>, <code>small</code></td></tr>
+          <tr><td><code>UI.dialogBox</code></td><td><span class="type">module</span></td><td>See <a href="#dialogbox">UI.dialogBox</a></td></tr>
+          <tr><td><code>UI.quadMenu</code></td><td><span class="type">module</span></td><td>See <a href="#quadmenu">UI.quadMenu</a></td></tr>
+          <tr><td><code>UI.battleStats</code></td><td><span class="type">module</span></td><td>See <a href="#battlestats">UI.battleStats</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">UI</span>:add(<span class="type">element</span>) <span class="ret">→ element</span></span>
+    <p class="method-desc">Register a UI element. The element must expose <code>:update(dt)</code> and <code>:draw()</code>.</p>
+
+    <span class="sig"><span class="kw">UI</span>:update(<span class="type">dt: number</span>)</span>
+    <p class="method-desc">Update all elements. Call from <code>love.update</code>.</p>
+
+    <span class="sig"><span class="kw">UI</span>:draw()</span>
+    <p class="method-desc">Draw all elements. Call from <code>love.draw</code>.</p>
+
+    <span class="sig"><span class="kw">UI</span>:removeType(<span class="type">type: string</span>)</span>
+    <p class="method-desc">Remove all elements of the given type, or pass <code>"all"</code> to clear everything.</p>
+
+    <span class="sig"><span class="kw">UI</span>:remove(<span class="type">object</span>)</span>
+    <p class="method-desc">Remove a specific element.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── DIALOGBOX ── -->
+  <section id="dialogbox">
+    <h2>UI.dialogBox</h2>
+    <span class="module-path">code/UI/dialogBox.lua</span>
+    <p>Creates dialog boxes with a typewriter reveal effect and optional multi-page support.</p>
+
+    <span class="sig"><span class="kw">UI.dialogBox</span>.new(<span class="type">text: string | string[], thenDo?: function</span>) <span class="ret">→ dialogBox</span></span>
+    <p class="method-desc">Passing a table as <code>text</code> creates a multi-page dialog. <code>thenDo</code> runs after the final page closes.</p>
+
+    <h3>dialogBox Object</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>type</code></td><td><span class="type">string</span></td><td><code>"dialogBox"</code></td></tr>
+          <tr><td><code>status</code></td><td><span class="type">string</span></td><td><code>"writing"</code> | <code>"waiting"</code> | <code>"scrolling"</code></td></tr>
+          <tr><td><code>:update(dt)</code></td><td><span class="type">method</span></td><td>Animate text reveal and scrolling</td></tr>
+          <tr><td><code>:draw()</code></td><td><span class="type">method</span></td><td>Render the dialog window and text</td></tr>
+          <tr><td><code>:destroy()</code></td><td><span class="type">method</span></td><td>Remove from UI and fire <code>thenDo</code> callback</td></tr>
+          <tr><td><code>:scrollToDeath()</code></td><td><span class="type">method</span></td><td>Trigger scroll-out exit animation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── QUADMENU ── -->
+  <section id="quadmenu">
+    <h2>UI.quadMenu</h2>
+    <span class="module-path">code/UI/quadMenu.lua</span>
+    <p>4-directional animated menu (N/E/S/W slots) for in-game action selection.</p>
+
+    <span class="sig"><span class="kw">UI.quadMenu</span>.new(<span class="type">image, itemWidth, itemHeight, action1?, action2?, action3?, action4?, cancel?</span>) <span class="ret">→ quadMenu</span></span>
+
+    <h3>Parameters</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>image</code></td><td><span class="type">string</span></td><td>Path to menu item image strip</td></tr>
+          <tr><td><code>itemWidth</code>, <code>itemHeight</code></td><td><span class="type">integer</span></td><td>Dimensions of each menu entry</td></tr>
+          <tr><td><code>action1–4</code></td><td><span class="type">function | nil</span></td><td>Callbacks for N, E, S, W items</td></tr>
+          <tr><td><code>cancel</code></td><td><span class="type">function | nil</span></td><td>Callback for cancel input</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>quadMenu Object</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>type</code></td><td><span class="type">string</span></td><td><code>"quadMenu"</code></td></tr>
+          <tr><td><code>selected</code></td><td><span class="type">integer</span></td><td>Currently highlighted item (1–4)</td></tr>
+          <tr><td><code>:update(dt)</code></td><td><span class="type">method</span></td><td>Animate selected item</td></tr>
+          <tr><td><code>:draw(dt)</code></td><td><span class="type">method</span></td><td>Render all items</td></tr>
+          <tr><td><code>:selectMenuItem(item)</code></td><td><span class="type">method</span></td><td>Change active selection</td></tr>
+          <tr><td><code>:destroy()</code></td><td><span class="type">method</span></td><td>Remove from UI</td></tr>
+          <tr><td><code>:disable()</code></td><td><span class="type">method</span></td><td>Remove input handler</td></tr>
+          <tr><td><code>:enable()</code></td><td><span class="type">method</span></td><td>Restore input handler</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── BATTLESTATS ── -->
+  <section id="battlestats">
+    <h2>UI.battleStats</h2>
+    <span class="module-path">code/UI/battleStats.lua</span>
+    <p>Displays a unit's statistics in an overlay window.</p>
+
+    <span class="sig"><span class="kw">UI.battleStats</span>.new(<span class="type">unit, thenDo?: function</span>) <span class="ret">→ battleStats</span></span>
+    <p class="method-desc"><code>unit</code> must have <code>stats</code> and <code>class</code> properties.</p>
+
+    <h3>battleStats Object</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>:update(dt)</code></td><td><span class="type">method</span></td><td>No-op (reserved)</td></tr>
+          <tr><td><code>:draw()</code></td><td><span class="type">method</span></td><td>Render the stats window</td></tr>
+          <tr><td><code>:destroy()</code></td><td><span class="type">method</span></td><td>Remove from UI and fire callback</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── INIT ── -->
+  <section id="init">
+    <h2>Init</h2>
+    <span class="module-path">code/init/init.lua — global table</span>
+    <p>Game and map initialisation module. Entry point for loading adventure and battle maps.</p>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">Init</span>.loadMap(<span class="type">filename: string</span>) <span class="ret">→ map</span></span>
+    <p class="method-desc">Load a Tiled map for adventure mode. Populates objects, highlight layer, cursor layer, and support functions.</p>
+
+    <span class="sig"><span class="kw">Init</span>.loadBattleMap(<span class="type">filename: string</span>) <span class="ret">→ map</span></span>
+    <p class="method-desc">Load a Tiled map pre-configured for battle.</p>
+
+    <span class="sig"><span class="kw">Init</span>.newGame()</span>
+    <p class="method-desc">Bootstrap a new game, adding Alan from the character database to the party.</p>
+
+    <h3>Sub-modules</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Init.Objects</code></td><td>Object population module</td></tr>
+          <tr><td><code>Init.addHighlightLayer</code></td><td>Adds tile highlight layer to a map</td></tr>
+          <tr><td><code>Init.addCursorLayer</code></td><td>Adds cursor layer to a map</td></tr>
+          <tr><td><code>Init.addSupportFunctions</code></td><td>Attaches map support functions</td></tr>
+          <tr><td><code>Init.save</code></td><td>Game save/load module — see <a href="#gamesave">Game Save</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── MAP ── -->
+  <section id="map">
+    <h2>Map</h2>
+    <span class="module-path">Returned by Init.loadMap / Init.loadBattleMap</span>
+    <p>A Tiled map extended with pathfinding, coordinate conversion, and object queries.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>map.layers</code></td><td><span class="type">table</span></td><td>Terrain, objects, highlight, and cursor layers</td></tr>
+          <tr><td><code>map.objects</code></td><td><span class="type">table</span></td><td>Interactive objects on the map</td></tr>
+          <tr><td><code>map.tilewidth</code>, <code>map.tileheight</code></td><td><span class="type">integer</span></td><td>Tile dimensions in pixels</td></tr>
+          <tr><td><code>map.width</code>, <code>map.height</code></td><td><span class="type">integer</span></td><td>Map size in tiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">map</span>:objectsAt(<span class="type">x, y: integer</span>) <span class="ret">→ table</span></span>
+    <p class="method-desc">Return all objects occupying tile (x, y).</p>
+
+    <span class="sig"><span class="kw">map</span>:getObjectByName(<span class="type">name: string</span>) <span class="ret">→ object</span></span>
+    <p class="method-desc">Return the first object with a matching name.</p>
+
+    <span class="sig"><span class="kw">map</span>:getObjectByID(<span class="type">id</span>) <span class="ret">→ object</span></span>
+    <p class="method-desc">Return the object with a matching ID.</p>
+
+    <span class="sig"><span class="kw">map</span>:convertTileToPixel(<span class="type">x, y: integer</span>) <span class="ret">→ {x, y}</span></span>
+    <span class="sig"><span class="kw">map</span>:convertPixelToTile(<span class="type">x, y: number</span>) <span class="ret">→ {x, y}</span></span>
+
+    <span class="sig"><span class="kw">map</span>:reachableTiles(<span class="type">x, y, movementPoints, movementModel, positions</span>) <span class="ret">→ table</span></span>
+    <p class="method-desc">Returns all tiles reachable from (x, y) within the given movement budget, respecting terrain costs and blockers.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── CURSOR ── -->
+  <section id="cursor">
+    <h2>Cursor</h2>
+    <span class="module-path">code/init/cursor.lua — created by Init.loadMap</span>
+    <p>Map selector that animates smoothly between tile positions.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>position</code></td><td><span class="type">{x, y}</span></td><td>Current pixel coordinates</td></tr>
+          <tr><td><code>tile</code></td><td><span class="type">{x, y, offsetX, offsetY}</span></td><td>Current tile coordinates</td></tr>
+          <tr><td><code>speed</code></td><td><span class="type">integer</span></td><td>Movement speed (default <code>400</code>)</td></tr>
+          <tr><td><code>sprite</code></td><td><span class="type">love.Image</span></td><td>Cursor sprite texture</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>:moveLeft()</code> <code>:moveRight()</code> <code>:moveUp()</code> <code>:moveDown()</code></td><td>Move one tile in the given direction</td></tr>
+          <tr><td><code>:snapTo(x, y)</code></td><td>Instantly teleport to tile</td></tr>
+          <tr><td><code>:moveTo(x, y)</code></td><td>Animate to tile position</td></tr>
+          <tr><td><code>:activate()</code></td><td>Push cursor input handler onto the stack</td></tr>
+          <tr><td><code>:showUnitInfo()</code></td><td>Open battle stats for unit at cursor position</td></tr>
+          <tr><td><code>:update(dt)</code></td><td>Advance animation</td></tr>
+          <tr><td><code>:draw()</code></td><td>Render the cursor sprite</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── HIGHLIGHT ── -->
+  <section id="highlight">
+    <h2>Highlight</h2>
+    <span class="module-path">code/init/highlight.lua — added by Init.addHighlightLayer</span>
+    <p>Pulsing tile highlight overlay, used to indicate reachable tiles.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Member</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>highlighted</code></td><td><span class="type">{x,y}[]</span></td><td>Tiles to highlight</td></tr>
+          <tr><td><code>opacity</code></td><td><span class="type">number</span></td><td>Current alpha (0.0 – 0.4)</td></tr>
+          <tr><td><code>opacitymax</code></td><td><span class="type">number</span></td><td>Default <code>0.4</code></td></tr>
+          <tr><td><code>opacitymin</code></td><td><span class="type">number</span></td><td>Default <code>0.0</code></td></tr>
+          <tr><td><code>speed</code></td><td><span class="type">number</span></td><td>Fade speed (default <code>2</code>)</td></tr>
+          <tr><td><code>:update(dt)</code></td><td><span class="type">method</span></td><td>Animate pulsing opacity</td></tr>
+          <tr><td><code>:draw()</code></td><td><span class="type">method</span></td><td>Render highlighted tiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── MAP OBJECTS ── -->
+  <section id="objects">
+    <h2>Map Objects</h2>
+    <span class="module-path">code/init/object.lua — created by Init.Objects</span>
+    <p>Interactive entities placed on maps, including party members, enemies, and NPCs.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td><span class="type">string</span></td><td></td></tr>
+          <tr><td><code>tile</code></td><td><span class="type">{x, y}</span></td><td>Tile coordinates</td></tr>
+          <tr><td><code>x</code>, <code>y</code></td><td><span class="type">number</span></td><td>Pixel coordinates</td></tr>
+          <tr><td><code>sprite</code></td><td><span class="type">love.Image</span></td><td></td></tr>
+          <tr><td><code>visible</code></td><td><span class="type">boolean</span></td><td></td></tr>
+          <tr><td><code>team</code></td><td><span class="type">string</span></td><td><code>"party"</code> or <code>"enemy"</code></td></tr>
+          <tr><td><code>stats</code></td><td><span class="type">table</span></td><td>Fighter objects only</td></tr>
+          <tr><td><code>class</code></td><td><span class="type">string</span></td><td>Fighter objects only</td></tr>
+          <tr><td><code>properties</code></td><td><span class="type">table</span></td><td>Raw Tiled object properties</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">object</span>:action()</span>
+    <p class="method-desc">Execute contextual action based on facing direction (e.g. read sign, talk to NPC).</p>
+
+    <span class="sig"><span class="kw">object</span>:moveCost(<span class="type">location</span>) <span class="ret">→ integer</span></span>
+    <p class="method-desc">Returns terrain movement cost to location (default <code>1</code>).</p>
+
+    <span class="sig"><span class="kw">object</span>:canMove(<span class="type">x, y: integer</span>) <span class="ret">→ boolean</span></span>
+
+    <span class="sig"><span class="kw">object</span>:getMovements() <span class="ret">→ {x,y}[]</span></span>
+    <p class="method-desc">Returns list of reachable tiles based on the unit's agility stat.</p>
+
+    <span class="sig"><span class="kw">object</span>:userControl(<span class="type">type?: string</span>)</span>
+    <p class="method-desc">Enable player control. Pass <code>"battle"</code> for battle-constrained movement.</p>
+
+    <h3>Movement Sub-object (<code>object.move</code>)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>:right(dt)</code> <code>:left(dt)</code> <code>:up(dt)</code> <code>:down(dt)</code></td><td>Move in direction</td></tr>
+          <tr><td><code>:blockable(direction)</code></td><td>Move only if not blocked</td></tr>
+          <tr><td><code>:battleMove(direction)</code></td><td>Move only onto highlighted tiles</td></tr>
+          <tr><td><code>:executeQueue(dt, queue)</code></td><td>Execute a queued movement path</td></tr>
+          <tr><td><code>:update(dt)</code></td><td>Update movement animation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── PARTY ── -->
+  <section id="party">
+    <h2>Party</h2>
+    <span class="module-path">code/Party.lua — global table</span>
+    <p>Manages the player's roster of characters across active and reserve slots.</p>
+
+    <h3>Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Party.active</code></td><td><span class="type">table</span></td><td>Active members (max <code>activeMax</code>)</td></tr>
+          <tr><td><code>Party.activeMax</code></td><td><span class="type">integer</span></td><td>Maximum active party size (default <code>10</code>)</td></tr>
+          <tr><td><code>Party.reserve</code></td><td><span class="type">table</span></td><td>Reserve members</td></tr>
+          <tr><td><code>Party.flags</code></td><td><span class="type">table</span></td><td>Story scripting flags</td></tr>
+          <tr><td><code>Party.savedAt</code></td><td><span class="type">table</span></td><td>Save location metadata</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Methods</h3>
+    <span class="sig"><span class="kw">Party</span>:addMember(<span class="type">DB_character</span>) <span class="ret">→ partymember</span></span>
+    <p class="method-desc">Deep-copies a character from the database and adds them to the party (active or reserve). The returned object includes <code>class</code>, <code>inventory</code>, <code>name</code>, <code>stats</code>, <code>gain</code>, and <code>promotion</code>.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── COMBATANT ── -->
+  <section id="combatant">
+    <h2>Combatant</h2>
+    <span class="module-path">code/class/Combatant.lua — class (extends Object)</span>
+
+    <span class="sig"><span class="kw">Combatant</span>:new(<span class="type">name?: string, stats?: table</span>) <span class="ret">→ Combatant</span></span>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td><code>"DEFAULT"</code></td><td>Combatant display name</td></tr>
+          <tr><td><code>stats.hp.max</code> / <code>.current</code></td><td>—</td><td>Hit points</td></tr>
+          <tr><td><code>stats.mp.max</code> / <code>.current</code></td><td>—</td><td>Magic points</td></tr>
+          <tr><td><code>stats.strength</code></td><td><code>5</code></td><td></td></tr>
+          <tr><td><code>stats.defense</code></td><td><code>5</code></td><td></td></tr>
+          <tr><td><code>stats.agility</code></td><td><code>5</code></td><td>Determines turn order</td></tr>
+          <tr><td><code>stats.speed</code></td><td><code>5</code></td><td></td></tr>
+          <tr><td><code>graphics</code></td><td><code>"default"</code></td><td>Graphics key</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── STATS ── -->
+  <section id="stats">
+    <h2>Stats</h2>
+    <span class="module-path">code/class/Stats.lua — class (extends Object)</span>
+
+    <span class="sig"><span class="kw">Stats</span>:new(<span class="type">name: string, ...</span>) <span class="ret">→ Stats</span></span>
+    <p class="method-desc">Creates a named stats container. <code>:__tostring()</code> returns the name for debugging.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── DB ── -->
+  <section id="db">
+    <h2>DB</h2>
+    <span class="module-path">code/init/db.lua — global table</span>
+    <p>Auto-loads all character and item definition files at startup.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>DB.characters</code></td><td><span class="type">table</span></td><td>Modules from <code>database/characters/</code>, keyed by filename (minus <code>.lua</code>)</td></tr>
+          <tr><td><code>DB.items</code></td><td><span class="type">table</span></td><td>Modules from <code>database/items/</code>, keyed by filename (minus <code>.lua</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── GAMESAVE ── -->
+  <section id="gamesave">
+    <h2>Game Save</h2>
+    <span class="module-path">code/init/gamesave.lua — Init.save</span>
+
+    <span class="sig"><span class="kw">Init.save</span>.saveData(<span class="type">party, filename: string</span>)</span>
+    <p class="method-desc">Serialise party data to disk using TSerial. Uses plain text if <code>DebuggingLevel.plainTextSaves</code> is <code>true</code>.</p>
+
+    <span class="sig"><span class="kw">Init.save</span>.loadData(<span class="type">filename?: string</span>) <span class="ret">→ table</span></span>
+    <p class="method-desc">Deserialise and return party data. Defaults to <code>"testsave.txt"</code>.</p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- ── DATABASE FORMAT ── -->
+  <section id="dbformat">
+    <h2>Database Format</h2>
+    <span class="module-path">database/characters/*.lua &amp; database/items/*.lua</span>
+    <p>Each file returns a plain Lua table and is indexed automatically by <code>DB</code>.</p>
+
+    <h3>Character</h3>
+    <pre><code>-- database/characters/Alan.lua
+return {
+    name       = "Alan",
+    class      = "swordsman",
+    image      = "path/to/sprite.png",
+    stats      = { level, hpmax, mpmax, attack, defense, agility, movement, exp, toNext },
+    gain       = { { level_up_bonuses }, ... },
+    promotion  = { class = "new_class", { promotion_stats }, ... },
+    inventory  = { { "item_name", equipped = true }, ... },
+}</code></pre>
+
+    <h3>Item</h3>
+    <pre><code>-- database/items/short sword.lua
+return {
+    name        = "short sword",
+    description = "A basic blade.",
+    icon        = "path/to/icon",
+    consumable  = false,
+    equipment   = {
+        classes = { "swordsman" },
+        type    = "weapon",   -- "weapon" | "armor" | "accessory"
+        attack  = 2,
+        bonus   = { hp, mp, attack, defense, agility, movement },
+    },
+    effect = {},
+    range  = 0,
+}</code></pre>
+  </section>
+
+</main>
+</body>
+</html>

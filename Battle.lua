@@ -1,16 +1,26 @@
-
+--- Battle module. Manages combat state, turn order, and attack resolution.
+--- Uses an agility-based tick-down initiative system: each unit's moveTimer starts
+--- at their agility value and counts down each round; the first to reach zero acts next.
 
 Battle = {}
 
+--- Whether a battle is currently in progress.
 Battle.active = false
 
+--- Array of all map object tables participating in the current battle.
 Battle.combattants = {}
 
+--- State for the currently active turn.
+--- `unit` is the acting unit; `startingPosition` records where they began.
 Battle.turn = {
     unit = {},
     startingPosition = {}
 }
 
+--- Initialises a battle with a list of combatants.
+--- Sets each unit's moveTimer to their agility stat, which seeds the initiative order.
+--- @param self table The Battle object.
+--- @param combattants table Array of map object tables, each requiring `properties.stats.agility`.
 Battle.initiate = function(self, combattants)
     self.combattants = combattants
     for _, unit in ipairs(combattants) do
@@ -19,6 +29,11 @@ Battle.initiate = function(self, combattants)
     end
 end
 
+--- Advances to the next turn using the agility tick-down system.
+--- Finds the lowest moveTimer across all combatants, subtracts it from everyone,
+--- then returns the first unit whose timer has hit zero and resets that unit's timer.
+--- Throws an assertion error if no unit reaches zero (should never happen).
+--- @param self table The Battle object.
 Battle.nextTurn = function(self)
     local lowest = 9999999
     -- makes lowest equal to the lowest moveTimer value
@@ -39,11 +54,20 @@ Battle.nextTurn = function(self)
     assert(false, "Something is very wrong with Battle.nextTurn method") -- we should never see this.
 end
 
+--- Begins a unit's turn. Currently just moves the cursor to (1,1).
+--- @param self table The Battle object.
+--- @param unit table The combatant whose turn is starting.
 Battle.initiateTurn = function(self, unit)
     Cursor:moveTo(1,1)
 end
 
 --Does this need to be part of the Battle object? Would there be a better place to put this?
+--- Resolves a basic attack and shows the result in a dialog box.
+--- Damage = attacker.stats.attack - defender.stats.defense, capped at defender's remaining HP.
+--- If the defender's HP reaches zero, they are removed from Battle.queue and a defeat message is shown.
+--- @param self table The Battle object.
+--- @param attacker table Combatant with `name` and `stats.attack` fields.
+--- @param defender table Combatant with `name`, `stats.defense`, and `stats.hp` fields.
 Battle.attack = function(self, attacker, defender)
     -- This is gonna be complex Hold on to your butts!
 

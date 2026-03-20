@@ -4,6 +4,14 @@ Designed to make tactical RPGs in the vein of Sega's *Shining Force* series of g
 
 This is in an *extremely* preliminary form at the moment and isn't suitable for anything. Seriously, the GitHub repo doesn't even have all the testing files or libraries I'm using, so you're not going to even run it at this point. When it gets to the point where it actually looks like a game, I'll likely release some example files to make it a complete demonstration.
 
+## Setup
+
+Some dependencies are included as git submodules. After cloning, run:
+
+```
+git submodule update --init
+```
+
 ## License
 
 This program is available under the terms of the GNU GPLv3. Please see LICENSE.md for the full text of the license. Included in this distribution are libraries which are available under their own license terms; please see their included documentation for more information.
